@@ -1,9 +1,10 @@
 """
-Run the pipeline from downloading the audio features to data cleaning.
+Run the pipeline from downloading the audio features to data cleaning. 
+Create a JSON file containing track information
 Parameters:
     None
 Returns:
-    tracks (dict): A dictionary mapping ID to track information (title, artist, album, date and subgenres)
+    None
 """
 
 from extract_subgenres import *
@@ -16,9 +17,13 @@ import os
 import json
 from download_url import *
 from dotenv import load_dotenv
+from pathlib import Path
 
 # Inject .env values to os.environ
 load_dotenv()
+
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 def cleanup(dir_path):
     print(f"[cleanup][INFO] - Removing {dir_path}")
@@ -66,9 +71,9 @@ def get_tracks():
     # Clean tracks
     clean_tracks(tracks)
 
-    # Print tracks as JSON so it can be captured from the log file
-    print(json.dumps(tracks, default=list, indent=2))
-    return tracks
+    # Store result as a separate JSON file that other scripts can process
+    with open(f"{BASE_DIR}/tracks.json", "w", encoding="utf-8") as file:
+        json.dump(tracks, file, default=list)
 
 if __name__ == "__main__":
     get_tracks()
