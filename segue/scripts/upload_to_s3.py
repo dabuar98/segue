@@ -9,10 +9,14 @@ Returns:
 import boto3
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+# Inject .env values to os.environ
+load_dotenv()
 
 def upload_to_s3(input_path):
     input_path = Path(input_path)
-    bucket = 'bucket-fsx2px'
+    bucket = os.getenv("BUCKET_NAME")
     total_uploaded = 0
     s3 = boto3.client('s3')
     print(f"[upload_to_s3][INFO] - Start uploading data to s3")

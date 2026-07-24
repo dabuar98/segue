@@ -15,6 +15,10 @@ import subprocess
 import os
 import json
 from download_url import *
+from dotenv import load_dotenv
+
+# Inject .env values to os.environ
+load_dotenv()
 
 def cleanup(dir_path):
     print(f"[cleanup][INFO] - Removing {dir_path}")
@@ -22,9 +26,9 @@ def cleanup(dir_path):
 
 def get_tracks():
     # Define where to locate data
-    genre_dataset_path = '/home/dabuar/apps/segue_tmp/data/genre_datasets'
-    audio_ft_path = '/home/dabuar/apps/segue_tmp/data/audio_features'
-    audio_ft_zipped_path = '/home/dabuar/apps/segue_tmp/data/temp'
+    genre_dataset_path = os.getenv("GENRE_DATASET_PATH")
+    audio_ft_path = os.getenv("AUDIO_FEATURES_PATH_TO_UNZIP")
+    audio_ft_zipped_path = os.getenv("AUDIO_FEATURES_PATH_ZIP")
 
     pair_link = {
         '01': 'https://zenodo.org/records/2553414/files/acousticbrainz-mediaeval-features--train-01.tar.bz2?download=1',
@@ -44,7 +48,7 @@ def get_tracks():
         # Create directories to prevent errors after cleanup
         os.makedirs(audio_ft_path, exist_ok=True)
         os.makedirs(audio_ft_zipped_path, exist_ok=True)
-        print(f"[get_tracks][INFO] - Created directories for audio features extraction for {pair}")
+        print(f"[get_tracks][INFO] - Created directories for audio features extraction for pair {pair}")
         # Download audio features
         zipped_file_path = os.path.join(audio_ft_zipped_path, f"train-{pair}.tar.bz2")
         download_url(url, zipped_file_path)
