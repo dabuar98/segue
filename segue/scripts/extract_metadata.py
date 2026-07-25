@@ -27,7 +27,7 @@ def extract_metadata(tracks, input_path):
             tags = data.get("metadata", {}).get("tags", {})
             # Add metadata
             tracks[id]['title'] = tags.get("title", None)
-            tracks[id]['artist'] = tags.get("artist") if "artist" in tags else tags.get("albumartist", None)
+            tracks[id]['artist'] = tags.get("artist") if tags.get("artist") else tags.get("albumartist", None)
             tracks[id]['album'] = tags.get("album", None)
             tracks[id]['date'] = tags.get("date", None)
 
