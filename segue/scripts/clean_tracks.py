@@ -11,6 +11,6 @@ def clean_tracks(tracks):
     for key, info in tracks.items():
         if info.get('title') is not None and info.get('artist') is not None:
             result[key] = info
-    print(f"[clean_tracks][INFO] - Removed {len(result):,}/{len(tracks):,} tracks without title and artist")
-    print(f"[clean_tracks][INFO] - Total tracks after cleaning: {len(tracks) - len(result):,}")
+    print(f"[clean_tracks][INFO] - Removed {len(tracks) - len(result):,}/{len(tracks):,} tracks without title and artist")
+    print(f"[clean_tracks][INFO] - Total tracks after cleaning: {len(result):,}")
     return result
