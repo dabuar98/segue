@@ -12,7 +12,6 @@ import json
 
 def extract_metadata(tracks, input_path):
     input_path = Path(input_path)
-    results = {}
     total_processed = 0
     # Extract the metadata from the JSON files
     for file in os.listdir(input_path):
@@ -28,7 +27,7 @@ def extract_metadata(tracks, input_path):
             tags = data.get("metadata", {}).get("tags", {})
             # Add metadata
             tracks[id]['title'] = tags.get("title", None)
-            tracks[id]['artist'] = tags.get("artist", None)
+            tracks[id]['artist'] = tags.get("artist") if "artist" in tags else tags.get("albumartist", None)
             tracks[id]['album'] = tags.get("album", None)
             tracks[id]['date'] = tags.get("date", None)
 
