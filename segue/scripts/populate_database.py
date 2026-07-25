@@ -52,7 +52,7 @@ def populate_database(tracks):
         # Bulk insert all tracks in one query
         tracks_created = Tracks.objects.bulk_create([
             Tracks(
-                mb_id=mbid,
+                mbid=mbid,
                 title=metadata.get('title', '[]')[0], # Extract data inside the list
                 artist=metadata.get('artist', '[]')[0],
                 album=metadata.get('album', '[]')[0],
@@ -69,7 +69,7 @@ def populate_database(tracks):
         }
 
         subgenres_created = Subgenres.objects.bulk_create([
-            Subgenres(mb_id=mbid, genre=genre)
+            Subgenres(mbid=mbid, genre=genre)
             for mbid, genre in subgenre_pairs
         ])
 
