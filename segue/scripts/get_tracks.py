@@ -62,14 +62,14 @@ def get_tracks():
         # Extract metadata
         extract_metadata(tracks, audio_ft_path)
         # Upload audio features to s3
-        upload_to_s3(audio_ft_path)
+        # upload_to_s3(audio_ft_path)
         # Delete folder storing zipped audio features
         cleanup(audio_ft_zipped_path)
         # Delete folder storing JSON audio features
         cleanup(audio_ft_path)
 
     # Clean tracks
-    clean_tracks(tracks)
+    tracks = clean_tracks(tracks)
 
     # Store result as a separate JSON file that other scripts can process
     with open(f"{BASE_DIR}/tracks.json", "w", encoding="utf-8") as file:
