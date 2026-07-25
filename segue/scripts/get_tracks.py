@@ -59,8 +59,8 @@ def get_tracks():
         download_url(url, zipped_file_path)
         # Extract audio features
         extract_audio_features(tracks, audio_ft_zipped_path, audio_ft_path)
-        # Extract metadata
-        extract_metadata(tracks, audio_ft_path)
+        # Add metadata to tracks
+        tracks = extract_metadata(tracks, audio_ft_path)
         # Upload audio features to s3
         # upload_to_s3(audio_ft_path)
         # Delete folder storing zipped audio features
