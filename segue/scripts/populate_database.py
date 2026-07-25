@@ -87,6 +87,6 @@ def populate_database(tracks):
 
     print(f"[populate_database][INFO] - Populated {len(tracks_created):,} tracks")
 
-### Test
-tracks = f'{BASE_DIR}/tracks_min.json'
+# Populate database
+tracks = f'{BASE_DIR}/tracks.json'
 populate_database(tracks)
