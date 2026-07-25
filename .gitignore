@@ -223,6 +223,5 @@ __marimo__/
 *.bz2
 *.faiss
 *.json
-*.log
 *.pem
 *.tsv
