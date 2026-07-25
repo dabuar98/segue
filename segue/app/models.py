@@ -2,7 +2,7 @@ from django.db import models
 
 # Define model for Subgenres table
 class Subgenres(models.Model):
-    mb_id = models.CharField(max_length=250, null=False, blank=False)
+    mbid = models.CharField(max_length=250, null=False, blank=False)
     genre = models.CharField(max_length=250, null=False, blank=False)
 
     def __str__(self):
@@ -12,17 +12,17 @@ class Subgenres(models.Model):
     class Meta:
         # Define index on Music Brainz ID to speed up retrieval
         indexes = [
-            models.Index(fields=['mb_id'])
+            models.Index(fields=['mbid'])
         ]
 
         # Prevent duplicates
         constraints = [
-            models.UniqueConstraint(fields=['mb_id', 'genre'], name='unique_track_genre')
+            models.UniqueConstraint(fields=['mbid', 'genre'], name='unique_track_genre')
         ]
 
 # Define model for Tracks table
 class Tracks(models.Model):
-    mb_id = models.CharField(max_length=250, null=False, blank=False)
+    mbid = models.CharField(max_length=250, null=False, blank=False)
     title = models.CharField(max_length=250, null=False, blank=False)
     artist = models.CharField(max_length=250, null=False, blank=False)
     album = models.CharField(max_length=250, null=False, blank=False)
@@ -35,7 +35,7 @@ class Tracks(models.Model):
     # Define index on Music Brainz ID to speed up retrieval
     class Meta:
         indexes = [
-            models.Index(fields=['mb_id'])
+            models.Index(fields=['mbid'])
         ]
 
 # Define junction table
