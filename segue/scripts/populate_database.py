@@ -1,9 +1,9 @@
 """
-populate_database traverse a list with track dicts and builds the tables Tracks and Subgenres
+populate_database traverse a list with track info and builds the tables Tracks and Subgenres
 based on models
 
 Parameters:
-    tracklist (list): List containing track dicts with metadata
+    tracks (JSON): Resulting file from running get_tracks
 Returns:
     None
 
@@ -24,79 +24,69 @@ Returns:
 import os
 import sys
 import django
-import csv
+from pathlib import Path
+from django.db import transaction
+import json
 
-sys.path.append('/home/dabuar/Documents/Final-Project/dev/segue_music_recommender')
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'segue.settings')
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent
+sys.path.append(str(BASE_DIR))
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'app.settings')
 django.setup()
 
-from django.db import transaction
-from api.models import *
-from add_metadata import add_metadata
-from build_metadatas import build_metadatas
-from extract_electronic_tracks_ids import extract_ids_electronic_genres
+from app.models import *
 
-def populate_database(track_list):
+def populate_database(tracks):
+    # Remove previous objects
     TrackSubgenreLink.objects.all().delete()
     Subgenres.objects.all().delete()
     Tracks.objects.all().delete()
     processed = 0
+
+    # Read JSON file
+    with open(tracks) as f:
+        tracks = json.load(f)
     
-    print(f"[populate_database][INFO] - Building Database . . .")
+    print(f"[populate_database][INFO] - Building Database")
     with transaction.atomic():
         # Bulk insert all tracks in one query
-        Tracks.objects.bulk_create([
+        tracks_created = Tracks.objects.bulk_create([
             Tracks(
-                mb_id=track['mbid'],
-                title=track.get('title', ''),
-                artist=track.get('artist', ''),
-                album=track.get('album', ''),
-                date=track.get('date', ''),
+                mb_id=mbid,
+                title=metadata.get('title', '[]')[0], # Extract data inside the list
+                artist=metadata.get('artist', '[]')[0],
+                album=metadata.get('album', '[]')[0],
+                date=metadata.get('date', '[]')[0],
             )
-            for track in track_list
+            for mbid, metadata in tracks.items()
         ])
 
         # Collect unique (mbid, genre) pairs and bulk insert subgenres
         subgenre_pairs = {
-            (track['mbid'], genre)
-            for track in track_list
-            for genre in track.get('subgenres', set())
-        }
-        Subgenres.objects.bulk_create(
-            [Subgenres(mb_id=mbid, genre=genre) for mbid, genre in subgenre_pairs],
-            ignore_conflicts=True,
-        )
-
-        # Fetch inserted rows to get their PKs for linking
-        mbids = [track['mbid'] for track in track_list]
-        track_lookup = {t.mb_id: t for t in Tracks.objects.filter(mb_id__in=mbids)}
-        subgenre_lookup = {
-            (s.mb_id, s.genre): s
-            for s in Subgenres.objects.filter(mb_id__in=mbids)
+            (mbid, genre)
+            for mbid, metadata in tracks.items()
+            for genre in metadata.get('subgenres', 'No subgenres')
         }
 
-        # Bulk insert all junction-table rows in one query
-        links = [
+        subgenres_created = Subgenres.objects.bulk_create([
+            Subgenres(mb_id=mbid, genre=genre)
+            for mbid, genre in subgenre_pairs
+        ])
+
+        # Populate junction table
+        TrackSubgenreLink.objects.bulk_create([
             TrackSubgenreLink(
-                track=track_lookup[track['mbid']],
-                subgenre=subgenre_lookup[(track['mbid'], genre)],
+                track=track,
+                subgenre=subgenre
             )
-            for track in track_list
-            if track['mbid'] in track_lookup
-            for genre in track.get('subgenres', set())
-            if (track['mbid'], genre) in subgenre_lookup
-        ]
-        TrackSubgenreLink.objects.bulk_create(links)
+            for track in tracks_created
+            for subgenre in subgenres_created
+        ])
+
         processed += 1
 
-    print(f"[populate_database][INFO] - Populated {len(track_list):,} tracks")
+    print(f"[populate_database][INFO] - Populated {len(tracks_created):,} tracks")
 
-
-#### Integration Test ######
-metadata_path = '/home/dabuar/Documents/Final-Project/dev/audio_metadata'
-audioft_path = '/home/dabuar/Documents/Final-Project/dev/audio_features'
-
-ids = extract_ids_electronic_genres(metadata_path)
-track_list = build_metadatas(ids, metadata_path)
-track_list = add_metadata(track_list, audioft_path)
-populate_database(track_list)
+### Test
+tracks = f'{BASE_DIR}/tracks_min.json'
+populate_database(tracks)
