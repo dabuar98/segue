@@ -13,6 +13,9 @@ import json
 def extract_metadata(tracks, input_path):
     input_path = Path(input_path)
     total_processed = 0
+    # Copy tracks (and each track's dict) so the input is left untouched
+    result = {id: dict(info) for id, info in tracks.items()}
+
     # Extract the metadata from the JSON files
     for file in os.listdir(input_path):
         if file.endswith(".json"):
@@ -26,13 +29,13 @@ def extract_metadata(tracks, input_path):
 
             tags = data.get("metadata", {}).get("tags", {})
             # Add metadata
-            tracks[id]['title'] = tags.get("title", None)
-            tracks[id]['artist'] = tags.get("artist") if tags.get("artist") else tags.get("albumartist", None)
-            tracks[id]['album'] = tags.get("album", None)
-            tracks[id]['date'] = tags.get("date", None)
+            result[id]['title'] = tags.get("title", None)
+            result[id]['artist'] = tags.get("artist") if tags.get("artist") else tags.get("albumartist", None)
+            result[id]['album'] = tags.get("album", None)
+            result[id]['date'] = tags.get("date", None)
 
             total_processed += 1
 
     # Print stats
     print(f"[extract_metadata][INFO] - Processed {total_processed:,} tracks")
-    return tracks
+    return result
