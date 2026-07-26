@@ -20,10 +20,13 @@ rhythm.onset_rate -> 1 element
 
 import os
 import unittest
+from dotenv import load_dotenv
 from scripts.extract_query_descriptors import *
 
-path_to_audio = os.path.join(os.path.dirname(__file__), 'In a While (Original Mix).mp3')
-result = extract_query_descriptors(path_to_audio)
+# Inject .env values to os.environ
+load_dotenv()
+DATA_PATH = os.getenv("DATA_PATH")
+result = extract_query_descriptors(f"{DATA_PATH}/sample.mp3")
 
 # Test that Essentia is returning the necessary information to build a query vector
 class TestExtractQueryDescriptors(unittest.TestCase):
