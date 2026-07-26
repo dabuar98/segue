@@ -2,20 +2,18 @@
 Compute the audio features of the query track. The output of this script is used to build the query vector
 Parameters:
     input_path (str) : Path to the query track
-    output_path (str) : Path to output JSON file
 Returns:
-    query_descriptors (json) : JSON containing the audio features of the query track
+    result (dict) : A dictionary containing the audio features of the query track
 '''
 
 import essentia.standard as es
-import json
 
-def extract_query_descriptors(input_path, output_path):
+def extract_query_descriptors(input_path):
     print("[extract_query_descriptors][INFO] - Extracting audio features")
     features, _ = es.MusicExtractor()(input_path)
     result = {}
     # Traverse audio features Pool
-    print("[extract_query_descriptors][INFO] - Building JSON object")
+    print("[extract_query_descriptors][INFO] - Building result object")
     for key in features.descriptorNames():
         value = features[key]
 
@@ -34,7 +32,5 @@ def extract_query_descriptors(input_path, output_path):
             d = d[part]
         d[parts[-1]] = value
 
-    with open(f"{output_path}/query_track.json", "w") as f:
-        json.dump(result, f)
-
     print("[extract_query_descriptors][INFO] - Done")
+    return result
