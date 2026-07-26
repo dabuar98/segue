@@ -22,19 +22,18 @@ from pathlib import Path
 # Inject .env values to os.environ
 load_dotenv()
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+# Define where to locate data
+GENRE_DATASET_PATH = os.getenv("GENRE_DATASET_PATH")
+AUDIO_FEATURES_PATH_TO_UNZIP = os.getenv("AUDIO_FEATURES_PATH_TO_UNZIP")
+AUDIO_FEATURES_PATH_ZIP = os.getenv("AUDIO_FEATURES_PATH_ZIP")
+DATA_PATH = os.getenv("DATA_PATH")
 
 def cleanup(dir_path):
     print(f"[cleanup][INFO] - Removing {dir_path}")
     subprocess.run(["rm", "-r", dir_path], check=True)
 
 def get_tracks():
-    # Define where to locate data
-    genre_dataset_path = os.getenv("GENRE_DATASET_PATH")
-    audio_ft_path = os.getenv("AUDIO_FEATURES_PATH_TO_UNZIP")
-    audio_ft_zipped_path = os.getenv("AUDIO_FEATURES_PATH_ZIP")
-
+    # Define pair-links
     pair_link = {
         '01': 'https://zenodo.org/records/2553414/files/acousticbrainz-mediaeval-features--train-01.tar.bz2?download=1',
         '23': 'https://zenodo.org/records/2553414/files/acousticbrainz-mediaeval-features-train-23.tar.bz2?download=1',
@@ -47,32 +46,32 @@ def get_tracks():
     }
 
     # Extract the ids and subgenres
-    tracks = extract_subgenres(genre_dataset_path)
+    tracks = extract_subgenres(GENRE_DATASET_PATH)
 
     for pair, url in pair_link.items():
         # Create directories to prevent errors after cleanup
-        os.makedirs(audio_ft_path, exist_ok=True)
-        os.makedirs(audio_ft_zipped_path, exist_ok=True)
+        os.makedirs(AUDIO_FEATURES_PATH_TO_UNZIP, exist_ok=True)
+        os.makedirs(AUDIO_FEATURES_PATH_ZIP, exist_ok=True)
         print(f"[get_tracks][INFO] - Created directories for audio features extraction for pair {pair}")
         # Download audio features
-        zipped_file_path = os.path.join(audio_ft_zipped_path, f"train-{pair}.tar.bz2")
+        zipped_file_path = os.path.join(AUDIO_FEATURES_PATH_ZIP, f"train-{pair}.tar.bz2")
         download_url(url, zipped_file_path)
         # Extract audio features
-        extract_audio_features(tracks, audio_ft_zipped_path, audio_ft_path)
+        extract_audio_features(tracks, AUDIO_FEATURES_PATH_ZIP, AUDIO_FEATURES_PATH_TO_UNZIP)
         # Add metadata to tracks
-        tracks = extract_metadata(tracks, audio_ft_path)
+        tracks = extract_metadata(tracks, AUDIO_FEATURES_PATH_TO_UNZIP)
         # Upload audio features to s3
-        # upload_to_s3(audio_ft_path)
+        upload_to_s3(AUDIO_FEATURES_PATH_TO_UNZIP)
         # Delete folder storing zipped audio features
-        cleanup(audio_ft_zipped_path)
+        cleanup(AUDIO_FEATURES_PATH_ZIP)
         # Delete folder storing JSON audio features
-        cleanup(audio_ft_path)
+        cleanup(AUDIO_FEATURES_PATH_TO_UNZIP)
 
     # Clean tracks
     tracks = clean_tracks(tracks)
 
     # Store result as a separate JSON file that other scripts can process
-    with open(f"{BASE_DIR}/tracks.json", "w", encoding="utf-8") as file:
+    with open(f"{DATA_PATH}/tracks.json", "w", encoding="utf-8") as file:
         json.dump(tracks, file, default=list)
 
 if __name__ == "__main__":
