@@ -6,20 +6,6 @@ Parameters:
     tracks (JSON): Resulting file from running get_tracks
 Returns:
     None
-
-    v2.0:
-    Here's what changed and why each part matters:
-
-    transaction.atomic() — Django auto-commits every INSERT by default, meaning each one flushes to disk. Wrapping everything in one transaction does a single flush at the end.
-
-    bulk_create for Tracks — replaces N individual INSERT statements with one batched INSERT.
-
-    bulk_create with ignore_conflicts=True for Subgenres — replaces N×M get_or_create calls (each doing a SELECT then possibly an INSERT) with one batched INSERT.
-
-    Two lookups + bulk_create for links — two SELECT queries to fetch back the PKs of inserted rows, then one batched INSERT for all junction rows.
-
-    Before: ~3,200 DB round-trips for 200 tracks with ~5 genres each.
-    After: ~8 queries total regardless of dataset size.
 """
 import os
 import sys
@@ -27,6 +13,13 @@ import django
 from pathlib import Path
 from django.db import transaction
 import json
+from dotenv import load_dotenv
+
+# Inject .env values to os.environ
+load_dotenv()
+
+# Path to data
+DATA_PATH = os.getenv("DATA_PATH")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -53,10 +46,10 @@ def populate_database(tracks):
         tracks_created = Tracks.objects.bulk_create([
             Tracks(
                 mbid=mbid,
-                title=metadata.get('title', '[]')[0], # Extract data inside the list
-                artist=metadata.get('artist', '[]')[0],
-                album=metadata.get('album', '[]')[0],
-                date=metadata.get('date', '[]')[0],
+                title=(metadata.get('title') or [''])[0], # Extract data inside the list
+                artist=(metadata.get('artist') or [''])[0],
+                album=(metadata.get('album') or [''])[0],
+                date=(metadata.get('date') or [''])[0],
             )
             for mbid, metadata in tracks.items()
         ])
@@ -74,13 +67,16 @@ def populate_database(tracks):
         ])
 
         # Populate junction table
+        # Link each track only to its own subgenres
+        tracks_by_mbid = {track.mbid: track for track in tracks_created}
+        subgenres_by_key = {(subgenre.mbid, subgenre.genre): subgenre for subgenre in subgenres_created}
+
         TrackSubgenreLink.objects.bulk_create([
             TrackSubgenreLink(
-                track=track,
-                subgenre=subgenre
+                track=tracks_by_mbid[mbid],
+                subgenre=subgenres_by_key[(mbid, genre)]
             )
-            for track in tracks_created
-            for subgenre in subgenres_created
+            for mbid, genre in subgenre_pairs
         ])
 
         processed += 1
@@ -88,5 +84,5 @@ def populate_database(tracks):
     print(f"[populate_database][INFO] - Populated {len(tracks_created):,} tracks")
 
 # Populate database
-tracks = f'{BASE_DIR}/tracks.json'
+tracks = f'{DATA_PATH}/tracks.json'
 populate_database(tracks)
