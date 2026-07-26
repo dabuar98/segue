@@ -94,3 +94,4 @@ def build_query_vector(input_path):
     result = result.reshape(1, d)
 
     print(f"[build_query_vector][INFO] - Created a {result.shape} vector")
+    return result
