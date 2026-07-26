@@ -36,7 +36,7 @@ class TestExtractMetadata(unittest.TestCase):
         with open(f"{self.path}/abc-123.json", "w") as f:
             json.dump(self.mock_audioft, f)
 
-        extract_metadata(self.mock_tracks, self.path)
+        self.mock_tracks = extract_metadata(self.mock_tracks, self.path)
         # Check previous fields are still present
         self.assertEqual(['genre1', 'genre2'], self.mock_tracks['abc-123']['subgenres'])
         # Check that title, artist, album, date are
@@ -52,7 +52,7 @@ class TestExtractMetadata(unittest.TestCase):
         with open(f"{self.path}/abc-123.json", "w") as f:
             json.dump(self.mock_audioft, f)
 
-        extract_metadata(self.mock_tracks, self.path)
+        self.mock_tracks = extract_metadata(self.mock_tracks, self.path)
         # Check previous fields are still present
         self.assertEqual(['genre1', 'genre2'], self.mock_tracks['abc-123']['subgenres'])
         # Check that title, artist, album, date are
@@ -67,7 +67,7 @@ class TestExtractMetadata(unittest.TestCase):
         with open(f"{self.path}/abc-123.json", "w") as f:
             json.dump(self.mock_audioft, f)
 
-        extract_metadata(self.mock_tracks, self.path)
+        self.mock_tracks = extract_metadata(self.mock_tracks, self.path)
         # Check previous fields are still present
         self.assertEqual(['genre1', 'genre2'], self.mock_tracks['abc-123']['subgenres'])
         # Check that title, artist, album, date are
@@ -76,6 +76,7 @@ class TestExtractMetadata(unittest.TestCase):
         self.assertEqual(None, self.mock_tracks['abc-123']['album'])
         self.assertEqual(None, self.mock_tracks['abc-123']['date'])
 
+    # test_metadata_extraction_without* only check the absence of the field
     def test_metadata_extraction_without_title(self):
         # Add mock metadata
         self.mock_audioft['metadata']['tags'] = {
@@ -88,10 +89,10 @@ class TestExtractMetadata(unittest.TestCase):
         with open(f"{self.path}/abc-123.json", "w") as f:
             json.dump(self.mock_audioft, f)
 
-        extract_metadata(self.mock_tracks, self.path)
+        self.mock_tracks = extract_metadata(self.mock_tracks, self.path)
         # Check previous fields are still present
         self.assertEqual(['genre1', 'genre2'], self.mock_tracks['abc-123']['subgenres'])
-        # Check that title, artist, album, date are
+        # Check that title, artist, album, date are there
         self.assertEqual(None, self.mock_tracks['abc-123']['title'])
         self.assertEqual(['Ben Klock'], self.mock_tracks['abc-123']['artist'])
         self.assertEqual(['One'], self.mock_tracks['abc-123']['album'])
@@ -109,7 +110,7 @@ class TestExtractMetadata(unittest.TestCase):
         with open(f"{self.path}/abc-123.json", "w") as f:
             json.dump(self.mock_audioft, f)
 
-        extract_metadata(self.mock_tracks, self.path)
+        self.mock_tracks = extract_metadata(self.mock_tracks, self.path)
         # Check previous fields are still present
         self.assertEqual(['genre1', 'genre2'], self.mock_tracks['abc-123']['subgenres'])
         # Check that title, artist, album, date are
@@ -130,7 +131,7 @@ class TestExtractMetadata(unittest.TestCase):
         with open(f"{self.path}/abc-123.json", "w") as f:
             json.dump(self.mock_audioft, f)
 
-        extract_metadata(self.mock_tracks, self.path)
+        self.mock_tracks = extract_metadata(self.mock_tracks, self.path)
         # Check previous fields are still present
         self.assertEqual(['genre1', 'genre2'], self.mock_tracks['abc-123']['subgenres'])
         # Check that title, artist, album, date are
@@ -151,7 +152,7 @@ class TestExtractMetadata(unittest.TestCase):
         with open(f"{self.path}/abc-123.json", "w") as f:
             json.dump(self.mock_audioft, f)
 
-        extract_metadata(self.mock_tracks, self.path)
+        self.mock_tracks = extract_metadata(self.mock_tracks, self.path)
         # Check previous fields are still present
         self.assertEqual(['genre1', 'genre2'], self.mock_tracks['abc-123']['subgenres'])
         # Check that title, artist, album, date are
@@ -159,6 +160,24 @@ class TestExtractMetadata(unittest.TestCase):
         self.assertEqual(['Ben Klock'], self.mock_tracks['abc-123']['artist'])
         self.assertEqual(['One'], self.mock_tracks['abc-123']['album'])
         self.assertEqual(None, self.mock_tracks['abc-123']['date'])
+
+    # Metadata containing empty string should be considered as None
+    def test_metadata_extraction_with_empty_string_parameter(self):
+        # Add mock metadata
+        self.mock_audioft['metadata']['tags'] = {
+            "title": "",
+            "artist": "",
+            "album": ["One"],
+            "date": ["2005"]
+        }
+
+        # Create mock JSON containing the audio features
+        with open(f"{self.path}/abc-123.json", "w") as f:
+            json.dump(self.mock_audioft, f)
+
+        self.mock_tracks = extract_metadata(self.mock_tracks, self.path)
+        self.assertEqual(None, self.mock_tracks['abc-123']['title'])
+        self.assertEqual(None, self.mock_tracks['abc-123']['artist'])
 
 if __name__ == '__main__':
     unittest.main()
