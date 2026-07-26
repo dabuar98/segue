@@ -3,7 +3,7 @@ Build a 1 x D vector where D is the dimension (75 descriptor values) that is pas
 Parameters:
     input_path (str) : Path to the query track
 Returns:
-    np.darray
+    result (nparray): A 1 x D Numpy array containing the values of the audio descriptors
 """
 import numpy as np
 from extract_query_descriptors import *
@@ -13,7 +13,7 @@ def map_key(key):
     :params key: (str) : Keys in { "A", "Bb", "B", "C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab" } [1]
     :returns value: (int) : Value to be mapped
     References:
-        [1] https://github.com/MTG/essentia/blob/b9fa6cb674ca43dfb94d28d293aeda441c6745db/src/algorithms/tonal/key.cpp#L631
+        [1] https://github.com/MTG/essentia/blob/v2.1_beta5-1445-gb9fa6cb6/src/algorithms/tonal/key.cpp
     """
     key_map = {
         'C': 0,
@@ -86,7 +86,6 @@ def build_query_vector(input_path):
     # Transform array into a 1 x D
     result = result.reshape(1, d)
 
-    print(result.dtype)
-    print(result.shape)
+    print(f"[build_query_vector][INFO] - Created a {result.shape} vector")
 
 build_query_vector('/home/dabuar/Documents/segue/segue/scripts/tests/In a While (Original Mix).mp3')
