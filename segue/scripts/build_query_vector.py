@@ -1,0 +1,92 @@
+"""
+Build a 1 x D vector where D is the dimension (75 descriptor values) that is passed as query vector to compute similarity
+Parameters:
+    input_path (str) : Path to the query track
+Returns:
+    np.darray
+"""
+import numpy as np
+from extract_query_descriptors import *
+
+def map_key(key):
+    """
+    :params key: (str) : Keys in { "A", "Bb", "B", "C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab" } [1]
+    :returns value: (int) : Value to be mapped
+    References:
+        [1] https://github.com/MTG/essentia/blob/b9fa6cb674ca43dfb94d28d293aeda441c6745db/src/algorithms/tonal/key.cpp#L631
+    """
+    key_map = {
+        'C': 0,
+        'C#': 1,
+        'D': 2,
+        'Eb': 3,
+        'E': 4,
+        'F': 5,
+        'F#': 6,
+        'G': 7,
+        'Ab': 8,
+        'A': 9,
+        'Bb': 10,
+        'B': 11,
+    }
+
+    return key_map[key]
+
+def map_key_scale(key_scale):
+    """
+    :params key_scale: (str) : scale of the key (major or minor)
+    :returns value: (int) : Value to be mapped (1 or 0)
+    """
+    return 1 if key_scale == 'major' else 0
+
+def build_query_vector(input_path):
+    descriptors = extract_query_descriptors(input_path)
+    # Store descriptors in a list
+    tmp_list = []
+
+    # Add 36 values from tonal.hpcp.mean
+    for hpcp in descriptors.get('tonal').get('hpcp').get('mean'):
+        tmp_list.append(hpcp)
+
+    # Add scalar tonal key values
+    tmp_list.append(
+        map_key(descriptors.get('tonal').get('key_edma').get('key'))
+    )
+    tmp_list.append(
+        map_key_scale(descriptors.get('tonal').get('key_edma').get('scale'))
+    )
+    tmp_list.append(descriptors.get('tonal').get('key_edma').get('strength'))
+
+    # Add low level descriptors
+    # Add 13 values from lowlevel.mfcc.mean
+    for mfccmean in descriptors.get('lowlevel').get('mfcc').get('mean'):
+        tmp_list.append(mfccmean)
+
+    # Add 169 values from lowlevel.mfcc.cov (13x13 covariance matrix flattened)
+    for mfcccov_row in descriptors.get('lowlevel').get('mfcc').get('cov'):
+        tmp_list.extend(mfcccov_row)
+
+    # Add scalar low-level values
+    tmp_list.append(descriptors.get('lowlevel').get('spectral_centroid').get('mean'))
+    tmp_list.append(descriptors.get('lowlevel').get('spectral_rolloff').get('mean'))
+    tmp_list.append(descriptors.get('lowlevel').get('spectral_flux').get('mean'))
+    tmp_list.append(descriptors.get('lowlevel').get('zerocrossingrate').get('mean'))
+    tmp_list.append(descriptors.get('lowlevel').get('zerocrossingrate').get('var'))
+
+    # Add rhythmical scalar values
+    tmp_list.append(descriptors.get('rhythm').get('bpm'))
+    tmp_list.append(descriptors.get('rhythm').get('danceability'))
+    tmp_list.append(descriptors.get('rhythm').get('beats_loudness').get('mean'))
+    tmp_list.append(descriptors.get('rhythm').get('beats_loudness').get('var'))
+    tmp_list.append(descriptors.get('rhythm').get('onset_rate'))
+
+    d = len(tmp_list) # Dimension of the vector
+    # Instantiate empty a Numpy array
+    result = np.array(tmp_list, dtype='float32')
+    # Transform array into a 1 x D
+    result = result.reshape(1, d)
+
+    print(result.dtype)
+    print(result.shape)
+
+build_query_vector('/home/dabuar/Documents/segue/segue/scripts/tests/In a While (Original Mix).mp3')
