@@ -1,12 +1,12 @@
 """
-Build a 1 x D vector where D is the dimension (75 descriptor values) that is passed as query vector to compute similarity
+Build a 1 x D vector where D is the dimension (231 descriptor values) that is passed as query vector to compute similarity
 Parameters:
     input_path (str) : Path to the query track
 Returns:
     result (nparray): A 1 x D Numpy array containing the values of the audio descriptors
 """
 import numpy as np
-from extract_query_descriptors import *
+from scripts.extract_query_descriptors import *
 
 def map_key(key):
     """
@@ -46,13 +46,10 @@ def map_key_scale(key_scale):
     return 1 if key_scale == 'major' else 0
 
 def build_query_vector(input_path):
+    # Compute audio descriptors
     descriptors = extract_query_descriptors(input_path)
     # Store descriptors in a list
     tmp_list = []
-
-    # Add 36 values from tonal.hpcp.mean
-    for hpcp in descriptors.get('tonal').get('hpcp').get('mean'):
-        tmp_list.append(hpcp)
 
     # Add scalar tonal key values
     tmp_list.append(
@@ -62,6 +59,10 @@ def build_query_vector(input_path):
         map_key_scale(descriptors.get('tonal').get('key_edma').get('scale'))
     )
     tmp_list.append(descriptors.get('tonal').get('key_edma').get('strength'))
+
+    # Add 36 values from tonal.hpcp.mean
+    for hpcp in descriptors.get('tonal').get('hpcp').get('mean'):
+        tmp_list.append(hpcp)
 
     # Add low level descriptors
     # Add 13 values from lowlevel.mfcc.mean
@@ -93,5 +94,3 @@ def build_query_vector(input_path):
     result = result.reshape(1, d)
 
     print(f"[build_query_vector][INFO] - Created a {result.shape} vector")
-
-build_query_vector('/home/dabuar/Documents/segue/segue/scripts/tests/In a While (Original Mix).mp3')
