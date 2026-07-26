@@ -2,6 +2,7 @@
 Unit tests for build_index_vector and build_query_vector
 Run it from the project directory with py -m unittest -v scripts.tests.test_build_vectors
 """
+import json
 import os
 import unittest
 
@@ -30,7 +31,11 @@ class TestBuildVectors(unittest.TestCase):
         self.assertTrue(result[0, 1] in [0, 1])
 
     def test_build_index_vector(self):
-        result = build_index_vector(f"{DATA_PATH}/audio_features_sample.json") # Receives a JSON file
+
+        with open(f"{DATA_PATH}/audio_features_sample.json") as f:
+            data = json.load(f) # Transform to a Python dict
+
+        result = build_index_vector(data) # Receives a Python dict
         # Test dimension
         self.assertEqual(result.shape, (1, 231))
         # Test key mapping (key is the first element of the vector)
