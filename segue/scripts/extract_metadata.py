@@ -29,10 +29,10 @@ def extract_metadata(tracks, input_path):
 
             tags = data.get("metadata", {}).get("tags", {})
             # Add metadata
-            result[id]['title'] = tags.get("title", None)
-            result[id]['artist'] = tags.get("artist") if tags.get("artist") else tags.get("albumartist", None)
-            result[id]['album'] = tags.get("album", None)
-            result[id]['date'] = tags.get("date", None)
+            result[id]['title'] = tags.get("title") or None # None if the key is missing or if its value is an empty string
+            result[id]['artist'] = tags.get("artist") or tags.get("albumartist") or None
+            result[id]['album'] = tags.get("album") or None
+            result[id]['date'] = tags.get("date") or None
 
             total_processed += 1
 
