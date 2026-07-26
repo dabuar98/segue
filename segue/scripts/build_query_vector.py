@@ -10,10 +10,16 @@ from extract_query_descriptors import *
 
 def map_key(key):
     """
-    :params key: (str) : Keys in { "A", "Bb", "B", "C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab" } [1]
+    Map key to its integer value (Representation of pitch class in set theory) [1]
+    :params key: (str) : Keys in { "A", "Bb", "B", "C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab" } [2]
     :returns value: (int) : Value to be mapped
     References:
-        [1] https://github.com/MTG/essentia/blob/v2.1_beta5-1445-gb9fa6cb6/src/algorithms/tonal/key.cpp
+        [1] M. Lavengood, "Pitch and pitch class," in Open Music Theory, VIVA Pressbooks, 2023.
+            [Online]. Available: https://viva.pressbooks.pub/openmusictheory/chapter/pitch-and-pitch-class/.
+            [Accessed: Jul. 26, 2026].
+        [2] Music Technology Group, Universitat Pompeu Fabra, "key.cpp," Essentia (source code repository), commit b9fa6cb, GitHub.
+            [Online]. Available: https://github.com/MTG/essentia/blob/v2.1_beta5-1445-gb9fa6cb6/src/algorithms/tonal/key.cpp.
+            [Accessed: Jul. 26, 2026].
     """
     key_map = {
         'C': 0,
