@@ -97,4 +97,5 @@ def build_index_vector(input_file):
     # Transform array into a 1 x D
     result = result.reshape(1, d)
 
-    print(f"[build_query_vector][INFO] - Created a {result.shape} vector")
+    print(f"[build_index_vector][INFO] - Created a {result.shape} vector")
+    return result
