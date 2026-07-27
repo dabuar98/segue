@@ -15,12 +15,14 @@ import numpy as np
 from botocore.exceptions import ClientError
 from dotenv import load_dotenv
 from scripts.build_index_vector import build_index_vector
+from scripts.get_tracks import DATA_PATH
 
 # Get bucket name
 load_dotenv()
 BUCKET_NAME = os.getenv("BUCKET_NAME")
 
 def build_index_matrix(input_path):
+    total_processed = 0 # For stats
     # Instantiate S3 client
     s3 = boto3.client('s3')
 
@@ -51,5 +53,12 @@ def build_index_matrix(input_path):
 
         # Add vector as column in matrix (insertion order given by idx)
         result_mat[idx, :] = vector
+        total_processed += 1
 
+    print(f"[build_index_matrix][INFO] - Processed {total_processed:,} files")
+    print(f"[build_index_matrix][INFO] - Created a {result_mat.shape} feature vector space matrix")
+    print(f"[build_index_matrix][INFO] - {"There are values missing" if np.isnan(result_mat).any() else "There are not values missing"}")
     return result_mat
+
+####### Execute it ##########
+build_index_matrix(f"{DATA_PATH}/tracks.json")
