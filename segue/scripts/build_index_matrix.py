@@ -37,6 +37,7 @@ def build_index_matrix(input_path):
     n = 231 # Number of audio descriptors values
     result_mat = np.full((m, n), np.nan ,dtype='float32')
 
+    print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] BuildIndexMatrix: Starting to build index matrix")
     for idx, (id, metadata) in enumerate(tracks.items()):
         # Read file from bucket
         try:
