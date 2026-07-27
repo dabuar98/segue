@@ -15,11 +15,12 @@ import numpy as np
 from botocore.exceptions import ClientError
 from dotenv import load_dotenv
 from build_index_vector import build_index_vector
+from datetime import datetime
 
-# Get bucket name
-load_dotenv()
-BUCKET_NAME = os.getenv("BUCKET_NAME")
-DATA_PATH = os.getenv("DATA_PATH")
+# # Get bucket name
+# load_dotenv()
+# BUCKET_NAME = os.getenv("BUCKET_NAME")
+# DATA_PATH = os.getenv("DATA_PATH")
 
 def build_index_matrix(input_path):
     total_processed = 0 # For stats
@@ -45,7 +46,7 @@ def build_index_matrix(input_path):
             )
             data = json.load(response['Body'])
         except ClientError as e:
-            print(f"[build_index_matrix][ERROR] - Error processing file {id}.json: {e}")
+            print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ ERROR ] BuildIndexMatrix: Error processing file {id}.json: {e}")
             continue
 
         # If data is loaded, build index vector and
@@ -55,10 +56,16 @@ def build_index_matrix(input_path):
         result_mat[idx, :] = vector
         total_processed += 1
 
-    print(f"[build_index_matrix][INFO] - Processed {total_processed:,} files")
-    print(f"[build_index_matrix][INFO] - Created a {result_mat.shape} feature vector space matrix")
-    print(f"[build_index_matrix][INFO] - {"There are values missing" if np.isnan(result_mat).any() else "There are not values missing"}")
+    print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] BuildIndexMatrix: Processed {total_processed:,} files")
+    print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] BuildIndexMatrix: Created a {result_mat.shape} feature vector space matrix")
+    print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] BuildIndexMatrix: {"There are values missing" if np.isnan(result_mat).any() else "There are not values missing"}")
     return result_mat
 
-####### Execute it ##########
-build_index_matrix(f"{DATA_PATH}/tracks.json")
+###### Executable ########
+if __name__ == "__main__":
+    # Get bucket name
+    load_dotenv()
+    BUCKET_NAME = os.getenv("BUCKET_NAME")
+    DATA_PATH = os.getenv("DATA_PATH")
+    build_index_matrix(f"{DATA_PATH}/tracks.json")
+    # build_index_matrix(f"{DATA_PATH}/tracks_min.json")
