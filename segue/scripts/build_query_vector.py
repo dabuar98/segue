@@ -7,6 +7,7 @@ Returns:
 """
 import numpy as np
 from scripts.extract_query_descriptors import *
+from datetime import datetime
 
 def map_key(key):
     """
@@ -93,5 +94,5 @@ def build_query_vector(input_path):
     # Transform array into a 1 x D
     result = result.reshape(1, d)
 
-    print(f"[build_query_vector][INFO] - Created a {result.shape} vector")
+    print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] BuildQueryVector: Created a {result.shape} vector")
     return result

@@ -7,6 +7,7 @@ Returns:
 """
 import json
 import numpy as np
+from datetime import datetime
 
 def map_key(key):
     """
@@ -92,5 +93,5 @@ def build_index_vector(af_dict):
     # Transform array into a 1 x D
     result = result.reshape(1, d)
 
-    # print(f"[build_index_vector][INFO] - Created a {result.shape} vector")
+    # print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] BuildIndexVector: Created a {result.shape} vector")
     return result

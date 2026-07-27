@@ -7,13 +7,14 @@ Returns:
 '''
 
 import essentia.standard as es
+from datetime import datetime
 
 def extract_query_descriptors(input_path):
-    print("[extract_query_descriptors][INFO] - Extracting audio features")
+    print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] ExtractQueryDescriptors: Extracting audio features")
     features, _ = es.MusicExtractor()(input_path)
     result = {}
     # Traverse audio features Pool
-    print("[extract_query_descriptors][INFO] - Building result object")
+    print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] ExtractQueryDescriptors: Building result object")
     for key in features.descriptorNames():
         value = features[key]
 
@@ -32,5 +33,5 @@ def extract_query_descriptors(input_path):
             d = d[part]
         d[parts[-1]] = value
 
-    print("[extract_query_descriptors][INFO] - Done")
+    print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] ExtractQueryDescriptors: Done")
     return result

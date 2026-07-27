@@ -13,6 +13,7 @@ Returns:
 import tarfile
 import os
 from pathlib import Path
+from datetime import datetime
 
 def extract_audio_features(tracks, input_path, output_path):
     input_path = Path(input_path)
@@ -27,7 +28,7 @@ def extract_audio_features(tracks, input_path, output_path):
 
     # Extract file with matching ID without unzipping it
     with tarfile.open(os.path.join(input_path, candidate[0]), "r:bz2") as tar:
-        print(f"[extract_audioft][INFO] - Started extracting audio features")
+        print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] ExtractAudioFeatures: Started extracting audio features")
         for member in tar:
             basename = os.path.basename(member.name)
             if basename.endswith(".json"):
@@ -40,4 +41,4 @@ def extract_audio_features(tracks, input_path, output_path):
                             f.write(file_obj.read())
                     total_extracted += 1
 
-    print(f"[extract_audioft][INFO] - Extracted {total_extracted:,} files")
+    print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] ExtractAudioFeatures: Extracted {total_extracted:,} files")

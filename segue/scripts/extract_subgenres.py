@@ -15,6 +15,7 @@ import os
 from collections import defaultdict
 from pathlib import Path
 import csv
+from datetime import datetime
 
 def extract_subgenres(input_path):
     # Parse string to os path
@@ -28,7 +29,7 @@ def extract_subgenres(input_path):
     for filename in os.listdir(input_path):
         if filename.endswith(".tsv"):
             with open(os.path.join(input_path, filename), newline="") as f:
-                print(f"[extract_subgenres][INFO] - Reading {filename}")
+                print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] ExtractSubgenres: Reading {filename}")
                 # Transform each row into a dict for easy traversal
                 # e.g {
                 #       'recordingmbid': '6eafad9e-3e4e-4af7-ad2c-dba94cfedecf',
@@ -62,13 +63,13 @@ def extract_subgenres(input_path):
                     total_processed += 1
 
     # Compute informational stats
-    print(f"[extract_subgenres][INFO] - Total tracks: {total_tracks:,}")
-    print(f"[extract_subgenres][INFO] - Electronic tracks: {len(result):,}")
-    print(f"[extract_subgenres][INFO] - Electronic subgenres: {len(subgenres_global):,}")
-    print(f"[extract_subgenres][INFO] - Processed tracks: {total_processed:,}")
+    print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] ExtractSubgenres: Total tracks: {total_tracks:,}")
+    print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] ExtractSubgenres: Electronic tracks: {len(result):,}")
+    print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] ExtractSubgenres: Electronic subgenres: {len(subgenres_global):,}")
+    print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] ExtractSubgenres: Processed tracks: {total_processed:,}")
 
     return result
 
 if __name__ == "__main__":
     tracks = extract_subgenres('/home/dabuar/Documents/Final-Project/dev/audio_metadata')
-    print(tracks[1:5])
+    print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] ExtractSubgenres: {tracks[1:5]}")

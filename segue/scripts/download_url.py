@@ -6,11 +6,12 @@ Parameters:
 """
 import os
 import subprocess
+from datetime import datetime
 
 def download_url(url, output_path):
     # Ensure the path is a string
     output_path = str(output_path)
-    print(f"[download_url][INFO] Downloading data from {url}...")
+    print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] DownloadUrl: Downloading data from {url}...")
     # check=True throws a CalledProcessError if any error
     # -q: Do not create wget-log files
     subprocess.run(

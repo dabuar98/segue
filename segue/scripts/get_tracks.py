@@ -18,6 +18,7 @@ import json
 from download_url import *
 from dotenv import load_dotenv
 from pathlib import Path
+from datetime import datetime
 
 # Inject .env values to os.environ
 load_dotenv()
@@ -29,7 +30,7 @@ AUDIO_FEATURES_PATH_ZIP = os.getenv("AUDIO_FEATURES_PATH_ZIP")
 DATA_PATH = os.getenv("DATA_PATH")
 
 def cleanup(dir_path):
-    print(f"[cleanup][INFO] - Removing {dir_path}")
+    print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] GetTracks: Removing {dir_path}")
     subprocess.run(["rm", "-r", dir_path], check=True)
 
 def get_tracks():
@@ -52,7 +53,7 @@ def get_tracks():
         # Create directories to prevent errors after cleanup
         os.makedirs(AUDIO_FEATURES_PATH_TO_UNZIP, exist_ok=True)
         os.makedirs(AUDIO_FEATURES_PATH_ZIP, exist_ok=True)
-        print(f"[get_tracks][INFO] - Created directories for audio features extraction for pair {pair}")
+        print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] GetTracks: Created directories for audio features extraction for pair {pair}")
         # Download audio features
         zipped_file_path = os.path.join(AUDIO_FEATURES_PATH_ZIP, f"train-{pair}.tar.bz2")
         download_url(url, zipped_file_path)

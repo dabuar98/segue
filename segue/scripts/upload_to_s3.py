@@ -10,6 +10,7 @@ import boto3
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+from datetime import datetime
 
 # Inject .env values to os.environ
 load_dotenv()
@@ -19,7 +20,7 @@ def upload_to_s3(input_path):
     bucket = os.getenv("BUCKET_NAME")
     total_uploaded = 0
     s3 = boto3.client('s3')
-    print(f"[upload_to_s3][INFO] - Start uploading data to s3")
+    print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] UploadToS3: Start uploading data to s3")
     for file in os.listdir(input_path):
         if file.endswith(".json"):
             file_name = os.path.join(input_path, file)
@@ -28,8 +29,8 @@ def upload_to_s3(input_path):
             try:
                 s3.upload_file(file_name, bucket, object_name)
             except ClientError as e:
-                print(f"[upload_to_s3][ERROR] - Error while uploading file: {e}")
+                print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ ERROR ] UploadToS3: Error while uploading file: {e}")
                 continue
             total_uploaded += 1
     # Print stats
-    print(f"[upload_to_s3][INFO] - Uploaded {total_uploaded:,} files")
+    print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] UploadToS3: Uploaded {total_uploaded:,} files")

@@ -5,12 +5,13 @@ Parameters:
 Return:
     tracks (dict): Cleaned dict
 """
+from datetime import datetime
 
 def clean_tracks(tracks):
     result = {}
     for key, info in tracks.items():
         if info.get('title') is not None and info.get('artist') is not None:
             result[key] = info
-    print(f"[clean_tracks][INFO] - Removed {len(tracks) - len(result):,}/{len(tracks):,} tracks without title and artist")
-    print(f"[clean_tracks][INFO] - Total tracks after cleaning: {len(result):,}")
+    print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] CleanTracks: Removed {len(tracks) - len(result):,}/{len(tracks):,} tracks without title and artist")
+    print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] CleanTracks: Total tracks after cleaning: {len(result):,}")
     return result

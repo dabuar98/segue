@@ -9,6 +9,7 @@ Returns:
 import os
 from pathlib import Path
 import json
+from datetime import datetime
 
 def extract_metadata(tracks, input_path):
     input_path = Path(input_path)
@@ -24,7 +25,7 @@ def extract_metadata(tracks, input_path):
                 with open(os.path.join(input_path, file)) as f:
                     data = json.load(f)
             except (json.JSONDecodeError, OSError):
-                print(f"[extract_metadata][ERROR] - Error processing {id}")
+                print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ ERROR ] ExtractMetadata: Error processing {id}")
                 continue
 
             tags = data.get("metadata", {}).get("tags", {})
@@ -37,5 +38,5 @@ def extract_metadata(tracks, input_path):
             total_processed += 1
 
     # Print stats
-    print(f"[extract_metadata][INFO] - Processed {total_processed:,} tracks")
+    print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] ExtractMetadata: Processed {total_processed:,} tracks")
     return result

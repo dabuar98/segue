@@ -14,6 +14,7 @@ from pathlib import Path
 from django.db import transaction
 import json
 from dotenv import load_dotenv
+from datetime import datetime
 
 # Inject .env values to os.environ
 load_dotenv()
@@ -40,7 +41,7 @@ def populate_database(tracks):
     with open(tracks) as f:
         tracks = json.load(f)
     
-    print(f"[populate_database][INFO] - Building Database")
+    print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] PopulateDatabase: Building Database")
     with transaction.atomic():
         # Bulk insert all tracks in one query
         tracks_created = Tracks.objects.bulk_create([
@@ -52,7 +53,7 @@ def populate_database(tracks):
                 date=(metadata.get('date') or [''])[0],
             )
             for mbid, metadata in tracks.items()
-        ])
+       ])
 
         # Collect unique (mbid, genre) pairs and bulk insert subgenres
         subgenre_pairs = {
@@ -64,7 +65,7 @@ def populate_database(tracks):
         subgenres_created = Subgenres.objects.bulk_create([
             Subgenres(mbid=mbid, genre=genre)
             for mbid, genre in subgenre_pairs
-        ])
+       ])
 
         # Populate junction table
         # Link each track only to its own subgenres
@@ -77,11 +78,11 @@ def populate_database(tracks):
                 subgenre=subgenres_by_key[(mbid, genre)]
             )
             for mbid, genre in subgenre_pairs
-        ])
+       ])
 
         processed += 1
 
-    print(f"[populate_database][INFO] - Populated {len(tracks_created):,} tracks")
+    print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] PopulateDatabase: Populated {len(tracks_created):,} tracks")
 
 # Populate database
 tracks = f'{DATA_PATH}/tracks.json'
