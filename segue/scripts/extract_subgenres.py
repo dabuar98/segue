@@ -70,6 +70,6 @@ def extract_subgenres(input_path):
 
     return result
 
-if __name__ == "__main__":
-    tracks = extract_subgenres('/home/dabuar/Documents/Final-Project/dev/audio_metadata')
-    print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] ExtractSubgenres: {tracks[1:5]}")
+#if __name__ == "__main__":
+#    tracks = extract_subgenres('/home/dabuar/Documents/Final-Project/dev/audio_metadata')
+#    print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] ExtractSubgenres: {tracks[1:5]}")
