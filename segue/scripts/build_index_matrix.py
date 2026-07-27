@@ -10,16 +10,14 @@ Returns:
 """
 import json
 import os
-
 import boto3
 import numpy as np
 from botocore.exceptions import ClientError
 from dotenv import load_dotenv
 from scripts.build_index_vector import build_index_vector
 
-# Define data path
+# Get bucket name
 load_dotenv()
-DATA_PATH = os.getenv("DATA_PATH")
 BUCKET_NAME = os.getenv("BUCKET_NAME")
 
 def build_index_matrix(input_path):
