@@ -8,7 +8,7 @@ import os
 import unittest
 import numpy as np
 from dotenv import load_dotenv
-from scripts.build_index_matrix import build_index_matrix
+from scripts.build_index_matrix import *
 
 # Define data path
 load_dotenv()
