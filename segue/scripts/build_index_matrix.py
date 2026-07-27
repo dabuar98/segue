@@ -32,7 +32,7 @@ def build_index_matrix(input_path):
     # Create empty M x N matrix
     m = len(tracks) # Number of vectors
     n = 231 # Number of audio descriptors values
-    result_mat = np.empty((m, n), dtype='float32')
+    result_mat = np.full((m, n), np.nan ,dtype='float32')
 
     for idx, (id, metadata) in enumerate(tracks.items()):
         # Read file from bucket
