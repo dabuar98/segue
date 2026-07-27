@@ -16,10 +16,10 @@ from botocore.exceptions import ClientError
 from dotenv import load_dotenv
 from build_index_vector import build_index_vector
 
-
 # Get bucket name
 load_dotenv()
 BUCKET_NAME = os.getenv("BUCKET_NAME")
+DATA_PATH = os.getenv("DATA_PATH")
 
 def build_index_matrix(input_path):
     total_processed = 0 # For stats
