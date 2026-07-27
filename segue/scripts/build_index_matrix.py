@@ -14,7 +14,7 @@ import boto3
 import numpy as np
 from botocore.exceptions import ClientError
 from dotenv import load_dotenv
-from scripts.build_index_vector import build_index_vector
+from build_index_vector import build_index_vector
 
 
 # Get bucket name
