@@ -60,6 +60,13 @@ def build_index_matrix(input_path):
     print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] BuildIndexMatrix: Processed {total_processed:,} files")
     print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] BuildIndexMatrix: Created a {result_mat.shape} feature vector space matrix")
     print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] BuildIndexMatrix: {"There are values missing" if np.isnan(result_mat).any() else "There are not values missing"}")
+
+    # Save the index matrix as a separate binary numpy file
+    with open (f"{DATA_PATH}/index_mat.npy", "wb") as f:
+        np.save(f, result_mat)
+    
+    print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] BuildIndexMatrix: Index matrix binary exported")
+
     return result_mat
 
 ###### Executable ########
