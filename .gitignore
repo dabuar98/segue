@@ -227,3 +227,6 @@ __marimo__/
 *.tsv
 *.csv
 *.mp3
+
+# IDE specifics
+/.idea
