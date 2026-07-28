@@ -218,7 +218,7 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-# Segue datasets
+# Segue specifics
 *.tar.bz2
 *.bz2
 *.faiss
@@ -227,6 +227,7 @@ __marimo__/
 *.tsv
 *.csv
 *.mp3
+*.npy
 
 # IDE specifics
 /.idea
