@@ -71,7 +71,6 @@ def build_index_matrix(input_path):
 
 ###### Executable ########
 if __name__ == "__main__":
-    # Get bucket name
     load_dotenv()
     BUCKET_NAME = os.getenv("BUCKET_NAME")
     DATA_PATH = os.getenv("DATA_PATH")
