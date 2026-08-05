@@ -6,7 +6,7 @@ Returns:
     result (nparray): A 1 x D Numpy array containing the values of the audio descriptors
 """
 import numpy as np
-from scripts.extract_query_descriptors import *
+from extract_query_descriptors import extract_query_descriptors
 from datetime import datetime
 
 def map_key(key):
