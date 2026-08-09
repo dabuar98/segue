@@ -228,6 +228,7 @@ __marimo__/
 *.csv
 *.mp3
 *.npy
+*.joblib
 
 # IDE specifics
 /.idea
