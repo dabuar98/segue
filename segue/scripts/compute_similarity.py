@@ -9,8 +9,13 @@ Returns:
 """
 
 import os
+import sys
+from pathlib import Path
+
 import faiss
 from dotenv import load_dotenv
+
+sys.path.append(str(Path(__file__).resolve().parent))
 from build_query_vector import build_query_vector
 
 load_dotenv()
