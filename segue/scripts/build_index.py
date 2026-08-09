@@ -16,12 +16,22 @@ import numpy as np
 from pathlib import Path
 from dotenv import load_dotenv
 import os
+from sklearn.preprocessing import StandardScaler
+import joblib
 
 def build_index(index_mat):
     d = 231  # Dimension (Number of audio descriptors values)
     index_mat = Path(index_mat)
     # Load index matrix .npy
     index = np.load(index_mat)
+
+    # Normalise index so audio features have 0 mean and standard deviation of 1
+    scaler = StandardScaler()
+    index = scaler.fit_transform(index)
+
+    # Export scaler to normalise query vector
+    joblib.dump(scaler, f"{DATA_PATH}/index_scaler.joblib")
+
     faiss_index = faiss.IndexFlatL2(d)  # build the index
     print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] BuildIndex: Start building faiss index")
     faiss_index.add(index)  # add vectors to the index
