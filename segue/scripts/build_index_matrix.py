@@ -3,6 +3,7 @@ Build the feature vector space matrix that is used as FAISS index to compute sim
 Parameters:
     input_path (str):   The path to the JSON file containing clean track information
                         (Resulting from get_tracks pipeline)
+    n (int): Number of audio descriptors
 Returns:
     result (np.darray): A M x N matrix representing the feature vector space used to feed FAISS
                         where M is the number of vectors (156,133 tracks) and N is the dimension of each vector (231 audio descriptors)
@@ -22,7 +23,7 @@ from datetime import datetime
 # BUCKET_NAME = os.getenv("BUCKET_NAME")
 # DATA_PATH = os.getenv("DATA_PATH")
 
-def build_index_matrix(input_path):
+def build_index_matrix(input_path, n):
     total_processed = 0 # For stats
     # Instantiate S3 client
     s3 = boto3.client('s3')
@@ -34,7 +35,6 @@ def build_index_matrix(input_path):
     # Resulting matrix
     # Create empty M x N matrix
     m = len(tracks) # Number of vectors
-    n = 231 # Number of audio descriptors values
     result_mat = np.full((m, n), np.nan ,dtype='float32')
 
     print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] BuildIndexMatrix: Starting to build index matrix")
@@ -74,5 +74,5 @@ if __name__ == "__main__":
     load_dotenv()
     BUCKET_NAME = os.getenv("BUCKET_NAME")
     DATA_PATH = os.getenv("DATA_PATH")
-    build_index_matrix(f"{DATA_PATH}/tracks.json")
+    build_index_matrix(f"{DATA_PATH}/tracks.json", 75)
     # build_index_matrix(f"{DATA_PATH}/tracks_min.json")
