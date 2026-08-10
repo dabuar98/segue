@@ -69,9 +69,10 @@ def build_index_vector(af_dict):
     for mfccmean in af_dict.get('lowlevel').get('mfcc').get('mean'):
         tmp_list.append(mfccmean)
 
-    # Add 169 values from lowlevel.mfcc.cov (13x13 covariance matrix flattened)
-    for mfcccov_row in af_dict.get('lowlevel').get('mfcc').get('cov'):
-        tmp_list.extend(mfcccov_row)
+    # Add 13 values from diagonal of lowlevel.mfcc.cov
+    mfcc_cov = af_dict.get('lowlevel').get('mfcc').get('cov')
+    for i in range(len(mfcc_cov)):
+        tmp_list.append(mfcc_cov[i][i])
 
     # Add scalar low-level values
     tmp_list.append(af_dict.get('lowlevel').get('spectral_centroid').get('mean'))
