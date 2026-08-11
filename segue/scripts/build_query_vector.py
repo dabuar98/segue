@@ -70,9 +70,10 @@ def build_query_vector(input_path):
     for mfccmean in descriptors.get('lowlevel').get('mfcc').get('mean'):
         tmp_list.append(mfccmean)
 
-    # Add 169 values from lowlevel.mfcc.cov (13x13 covariance matrix flattened)
-    for mfcccov_row in descriptors.get('lowlevel').get('mfcc').get('cov'):
-        tmp_list.extend(mfcccov_row)
+    # Add 13 values from diagonal of lowlevel.mfcc.cov
+    mfcc_cov = descriptors.get('lowlevel').get('mfcc').get('cov')
+    for i in range(len(mfcc_cov)):
+        tmp_list.append(mfcc_cov[i][i])
 
     # Add scalar low-level values
     tmp_list.append(descriptors.get('lowlevel').get('spectral_centroid').get('mean'))
