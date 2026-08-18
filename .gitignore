@@ -229,7 +229,7 @@ __marimo__/
 *.mp3
 *.npy
 *.joblib
-
+*.zip
 # IDE specifics
 /.idea
 
