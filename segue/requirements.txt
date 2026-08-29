@@ -7,7 +7,7 @@ botocore-stubs==1.43.14
 Django==6.0.7
 django-filter==26.1
 djangorestframework==3.17.1
-essentia==2.1b6.dev1389
+essentia==2.1b6.dev1438
 faiss-cpu==1.14.3
 git-filter-repo==2.47.0
 jmespath==1.1.0
