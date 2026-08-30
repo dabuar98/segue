@@ -5,11 +5,13 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from dotenv import load_dotenv
-from scripts.compute_similarity import compute_similarity
 from scripts.build_query_vector import build_query_vector
 from app.models import *
 from .serialisers import TrackSerialiser
 import magic
+import faiss
+import joblib
+from scripts.utils import cosine_similarity
 
 """
 To run it curl -s -X POST http://localhost:8000/api/similar/ -F "audio=@data/sample.mp3" | python -m json.tool
@@ -21,6 +23,12 @@ DATA_PATH = os.getenv("DATA_PATH")
 # Read JSON file
 with open(f"{DATA_PATH}/tracks.json", "r") as f:
     tracks = json.loads(f.read())
+
+# Load index
+faiss_index = faiss.read_index(f"{DATA_PATH}/index.faiss")
+
+# Load scaler
+scaler = joblib.load(f"{DATA_PATH}/index_scaler.joblib")
 
 @require_POST
 @csrf_exempt
@@ -66,8 +74,11 @@ def similar(request):
     # Build query vector
     query_vector = build_query_vector(tmp_path)
 
+    # Apply scaler to query vector
+    query_vector = scaler.transform(query_vector)
+
     try:
-        distances, indices = compute_similarity(query_vector, n)
+        distances, indices = faiss_index.search(query_vector, n)
     finally:
         os.remove(tmp_path)
 
@@ -85,5 +96,14 @@ def similar(request):
     if dist == 'true':
         for track, distance in zip(serialiser.data, distances[0]):
             track['distance'] = round(float(distance), 6)
+
+    if sim == 'true':
+        for track, idx in zip(serialiser.data, indices[0]):
+            # Retrieve vector from FAISS matrix
+            vect = faiss_index.reconstruct(int(idx))
+            # Compute cosine similarity
+            similarity = cosine_similarity(query_vector, vect)
+            # Display similarity as percentage
+            track['similarity'] = round(similarity, 6)
 
     return JsonResponse(serialiser.data, safe=False)
