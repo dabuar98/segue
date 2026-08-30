@@ -32,10 +32,10 @@ def similar(request):
     n = request.POST.get('n', 20)
 
     # Show distance between query track and returned vector? (Default False)
-    dist = request.POST.get('dist', 'false')
+    dist = request.POST.get('dist', 'false').lower()
 
     # Show cosine-based similarity? (Default False)
-    sim = request.POST.get('sim', 'false')
+    sim = request.POST.get('sim', 'false').lower()
 
     # Validate if n is an integer, return error otherwise
     try:
@@ -44,11 +44,11 @@ def similar(request):
         return JsonResponse({'error': 'n must be an integer'}, status=400)
 
     # Validate if dist is a boolean
-    if dist.lower() not in ['true', 'false']:
+    if dist not in ['true', 'false']:
         return JsonResponse({'error': 'dist must be a boolean'}, status=400)
 
     # Validate if sim is a boolean
-    if sim.lower() not in ['true', 'false']:
+    if sim not in ['true', 'false']:
         return JsonResponse({'error': 'sim must be a boolean'}, status=400)
 
     # Create temporary file to store submitted audio file
@@ -81,4 +81,9 @@ def similar(request):
         tracks_objects.append(Tracks.objects.get(mbid=mbid))
 
     serialiser = TrackSerialiser(tracks_objects, many=True)
+
+    if dist == 'true':
+        for track, distance in zip(serialiser.data, distances[0]):
+            track['distance'] = round(float(distance), 6)
+
     return JsonResponse(serialiser.data, safe=False)
