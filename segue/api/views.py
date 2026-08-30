@@ -32,10 +32,10 @@ def similar(request):
     n = request.POST.get('n', 20)
 
     # Show distance between query track and returned vector? (Default False)
-    dist = request.POST.get('POST', 'false')
+    dist = request.POST.get('dist', 'false')
 
     # Show cosine-based similarity? (Default False)
-    sim = request.POST.get('POST', 'false')
+    sim = request.POST.get('sim', 'false')
 
     # Validate if n is an integer, return error otherwise
     try:
