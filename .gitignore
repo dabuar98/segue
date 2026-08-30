@@ -232,6 +232,7 @@ __marimo__/
 *.npy
 *.joblib
 *.zip
+*.pdf
 # IDE specifics
 /.idea
 
