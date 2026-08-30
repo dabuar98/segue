@@ -6,6 +6,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from dotenv import load_dotenv
 from scripts.compute_similarity import compute_similarity
+from scripts.build_query_vector import build_query_vector
 from app.models import *
 from .serialisers import TrackSerialiser
 import magic
@@ -43,11 +44,11 @@ def similar(request):
         return JsonResponse({'error': 'n must be an integer'}, status=400)
 
     # Validate if dist is a boolean
-    if dist.lowercase() not in ['true', 'false']:
+    if dist.lower() not in ['true', 'false']:
         return JsonResponse({'error': 'dist must be a boolean'}, status=400)
 
     # Validate if sim is a boolean
-    if sim.lowercase() not in ['true', 'false']:
+    if sim.lower() not in ['true', 'false']:
         return JsonResponse({'error': 'sim must be a boolean'}, status=400)
 
     # Create temporary file to store submitted audio file
@@ -62,8 +63,11 @@ def similar(request):
     if 'audio' not in magic.from_file(tmp_path, mime=True):
         return JsonResponse({'error': 'only audio files are supported'}, status=400)
 
+    # Build query vector
+    query_vector = build_query_vector(tmp_path)
+
     try:
-        distances, indices = compute_similarity(tmp_path, n)
+        distances, indices = compute_similarity(query_vector, n)
     finally:
         os.remove(tmp_path)
 
