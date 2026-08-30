@@ -9,6 +9,7 @@ django-filter==26.1
 djangorestframework==3.17.1
 essentia==2.1b6.dev1438
 faiss-cpu==1.14.3
+fleep==1.0.1
 git-filter-repo==2.47.0
 jmespath==1.1.0
 joblib==1.5.3
