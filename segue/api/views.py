@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from scripts.compute_similarity import compute_similarity
 from app.models import *
 from .serialisers import TrackSerialiser
+import fleep
 
 """
 To run it curl -s -X POST http://localhost:8000/api/similar/ -F "audio=@data/sample.mp3" | python -m json.tool
@@ -40,6 +41,15 @@ def similar(request):
         for chunk in audio_file.chunks():
             tmp.write(chunk)
         tmp_path = tmp.name
+
+    # Validate if uploaded file is an audio file
+    with open(tmp_path, 'rb') as file:
+        info = fleep.get(file.read(128))
+
+    # info.type returns list of suitable file types
+    if 'audio' not in info.type:
+        return JsonResponse({'error': 'the uploaded file must be audio'}, status=400)
+
     try:
         distances, indices = compute_similarity(tmp_path, n)
     finally:
