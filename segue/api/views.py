@@ -23,17 +23,25 @@ with open(f"{DATA_PATH}/tracks.json", "r") as f:
 @require_POST
 @csrf_exempt
 def similar(request):
-    result = []
+
+    # Retrieve the parameters passed on the request
     audio_file = request.FILES['audio']
 
+    # Retrieve n (if any),  validate if it is an integer, return error otherwise
+    try:
+        n = int(request.POST.get('n', 20))
+    except (TypeError, ValueError):
+        return JsonResponse({'error': 'n must be an integer'}, status=400)
+        
     # Create temporary file to store submitted audio file
     suffix = os.path.splitext(audio_file.name)[1]
     with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
+        # Split the audio file in chunks to avoid overwhelming the system
         for chunk in audio_file.chunks():
             tmp.write(chunk)
         tmp_path = tmp.name
     try:
-        distances, indices = compute_similarity(tmp_path)
+        distances, indices = compute_similarity(tmp_path, n)
     finally:
         os.remove(tmp_path)
 
