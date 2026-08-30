@@ -99,7 +99,7 @@ def similar(request):
 
     if sim == 'true':
         for track, idx in zip(serialiser.data, indices[0]):
-            # Retrieve vector from FAISS matrix
+            # Retrieve response vector from FAISS index
             vect = faiss_index.reconstruct(int(idx))
             # Compute cosine similarity
             similarity = cosine_similarity(query_vector, vect)
