@@ -24,16 +24,32 @@ with open(f"{DATA_PATH}/tracks.json", "r") as f:
 @require_POST
 @csrf_exempt
 def similar(request):
-
     # Retrieve the parameters passed on the request
     audio_file = request.FILES['audio']
 
-    # Retrieve n (if any),  validate if it is an integer, return error otherwise
+    # Get number of tracks to return (Default 20)
+    n = request.POST.get('n', 20)
+
+    # Show distance between query track and returned vector? (Default False)
+    dist = request.POST.get('POST', 'false')
+
+    # Show cosine-based similarity? (Default False)
+    sim = request.POST.get('POST', 'false')
+
+    # Validate if n is an integer, return error otherwise
     try:
-        n = int(request.POST.get('n', 20))
+        n = int(n)
     except (TypeError, ValueError):
         return JsonResponse({'error': 'n must be an integer'}, status=400)
-        
+
+    # Validate if dist is a boolean
+    if dist.lowercase() not in ['true', 'false']:
+        return JsonResponse({'error': 'dist must be a boolean'}, status=400)
+
+    # Validate if sim is a boolean
+    if sim.lowercase() not in ['true', 'false']:
+        return JsonResponse({'error': 'sim must be a boolean'}, status=400)
+
     # Create temporary file to store submitted audio file
     suffix = os.path.splitext(audio_file.name)[1]
     with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
