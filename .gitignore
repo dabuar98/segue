@@ -227,6 +227,8 @@ __marimo__/
 *.tsv
 *.csv
 *.mp3
+*.wav
+*.aiff
 *.npy
 *.joblib
 *.zip
