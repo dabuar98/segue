@@ -79,6 +79,8 @@ def similar(request):
 
     try:
         distances, indices = faiss_index.search(query_vector, n)
+    except Exception as e:
+        return JsonResponse({'error': 'an error creating the recommendation occurred'}, status=500)
     finally:
         os.remove(tmp_path)
 
