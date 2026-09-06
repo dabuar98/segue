@@ -51,6 +51,12 @@ def similar(request):
     except (TypeError, ValueError):
         return JsonResponse({'error': 'n must be an integer'}, status=400)
 
+    # Validate that n is a positive number
+    if n < 0: return JsonResponse({'error': 'n must be a positive integer'}, status=400)
+
+    # Limit the number of recommendations to max 50 to avoid memory overload
+    if n > 50: return JsonResponse({'error': 'n must be less than 50'}, status=400)
+
     # Validate if dist is a boolean
     if dist not in ['true', 'false']:
         return JsonResponse({'error': 'dist must be a boolean'}, status=400)
