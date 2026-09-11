@@ -29,16 +29,24 @@ def build_index(index_mat, n):
     scaler = StandardScaler()
     vectors = scaler.fit_transform(raw_vectors)
 
-    # Export scaler to normalise query vector
-    joblib.dump(scaler, f"{DATA_PATH}/index_scaler.joblib")
+    # Normalise vectors
+    faiss.normalize_L2(vectors)
 
-    faiss_index = faiss.IndexFlatL2(n)  # build the index
+    # Build index
     print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] BuildIndex: Start building faiss index")
-    faiss_index.add(vectors)  # add vectors to the index
+    faiss_index = faiss.IndexFlatIP(n)
+
+    # Add vectors to index
+    faiss_index.add(vectors)
     print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] BuildIndex: {faiss_index.ntotal:,} vectors added to faiss index")
+
     # Store index for offline computation
     faiss.write_index(faiss_index, f"{DATA_PATH}/index.faiss")
     print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] BuildIndex: Index exported")
+
+    # Export scaler to normalise query vector
+    joblib.dump(scaler, f"{DATA_PATH}/index_scaler.joblib")
+    print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] BuildIndex: Scaler exported")
 
 ##### Executable ######
 if __name__ == "__main__":
