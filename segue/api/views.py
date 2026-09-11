@@ -42,8 +42,8 @@ def similar(request):
     # Show distance between query track and returned vector? (Default False)
     dist = request.POST.get('dist', 'false').lower()
 
-    # Show cosine-based similarity? (Default False)
-    sim = request.POST.get('sim', 'false').lower()
+    # # Show cosine-based similarity? (Default False)
+    # sim = request.POST.get('sim', 'false').lower()
 
     # Validate if n is an integer, return error otherwise
     try:
@@ -62,8 +62,8 @@ def similar(request):
         return JsonResponse({'error': 'dist must be a boolean'}, status=400)
 
     # Validate if sim is a boolean
-    if sim not in ['true', 'false']:
-        return JsonResponse({'error': 'sim must be a boolean'}, status=400)
+    # if sim not in ['true', 'false']:
+    #     return JsonResponse({'error': 'sim must be a boolean'}, status=400)
 
     # Create temporary file to store submitted audio file
     suffix = os.path.splitext(audio_file.name)[1]
@@ -82,6 +82,9 @@ def similar(request):
 
     # Apply scaler to query vector
     query_vector = scaler.transform(query_vector)
+
+    # Normalise query vector
+    faiss.normalize_L2(query_vector)
 
     try:
         distances, indices = faiss_index.search(query_vector, n)
@@ -105,13 +108,13 @@ def similar(request):
         for track, distance in zip(serialiser.data, distances[0]):
             track['distance'] = round(float(distance), 6)
 
-    if sim == 'true':
-        for track, idx in zip(serialiser.data, indices[0]):
-            # Retrieve response vector from FAISS index
-            vect = faiss_index.reconstruct(int(idx))
-            # Compute cosine similarity
-            similarity = cosine_similarity(query_vector, vect)
-            # Display similarity as percentage
-            track['similarity'] = round(similarity, 6)
+    # if sim == 'true':
+    #     for track, idx in zip(serialiser.data, indices[0]):
+    #         # Retrieve response vector from FAISS index
+    #         vect = faiss_index.reconstruct(int(idx))
+    #         # Compute cosine similarity
+    #         similarity = cosine_similarity(query_vector, vect)
+    #         # Display similarity as percentage
+    #         track['similarity'] = round(similarity, 6)
 
     return JsonResponse(serialiser.data, safe=False)
