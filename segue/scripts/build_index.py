@@ -23,18 +23,18 @@ import joblib
 def build_index(index_mat, n):
     index_mat = Path(index_mat)
     # Load index matrix .npy
-    index = np.load(index_mat)
+    raw_vectors = np.load(index_mat)
 
     # Normalise index so audio features have 0 mean and standard deviation of 1
     scaler = StandardScaler()
-    index = scaler.fit_transform(index)
+    vectors = scaler.fit_transform(raw_vectors)
 
     # Export scaler to normalise query vector
     joblib.dump(scaler, f"{DATA_PATH}/index_scaler.joblib")
 
     faiss_index = faiss.IndexFlatL2(n)  # build the index
     print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] BuildIndex: Start building faiss index")
-    faiss_index.add(index)  # add vectors to the index
+    faiss_index.add(vectors)  # add vectors to the index
     print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] BuildIndex: {faiss_index.ntotal:,} vectors added to faiss index")
     # Store index for offline computation
     faiss.write_index(faiss_index, f"{DATA_PATH}/index.faiss")
