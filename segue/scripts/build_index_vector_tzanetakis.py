@@ -1,12 +1,10 @@
 import json
 import os
-
 import numpy as np
 from datetime import datetime
-
 from dotenv import load_dotenv
+from utils import map_key_former_essentiav, map_key_scale
 
-from .utils import map_key, map_key_scale
 def build_index_vector_tzanetakis(af_dict):
     """
     Create an 1 xD array with the audio features values retrieved for a mbid.
@@ -57,7 +55,7 @@ def build_index_vector_tzanetakis(af_dict):
     # Pitch content - Harmony: Features based on pitch histograms (4 dimensions)
     # The most dominant pitch class of the song
     tmp_list.append(
-        map_key(af_dict.get('tonal').get('chords_key'))
+        map_key_former_essentiav(af_dict.get('tonal').get('chords_key'))
     )
     # The most dominant octave range of the dominant musical key
     tmp_list.append(
@@ -74,7 +72,7 @@ def build_index_vector_tzanetakis(af_dict):
     # Transform array into a 1 x D
     result = result.reshape(1, d)
 
-    print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] BuildIndexVector: Created a {result.shape} vector")
+    print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] BuildIndexVectorTzanetakis: Created a {result.shape} vector")
     return result
 
 ###### Executable ########
@@ -82,5 +80,7 @@ if __name__ == "__main__":
     load_dotenv()
     BUCKET_NAME = os.getenv("BUCKET_NAME")
     DATA_PATH = os.getenv("DATA_PATH")
-    vector = build_index_vector_tzanetakis(f"{DATA_PATH}/tracks_min.json")
+    with open (f"{DATA_PATH}/audio_features_sample.json", 'r') as f:
+        af = json.load(f)
+    vector = build_index_vector_tzanetakis(af)
     print(vector)
