@@ -25,12 +25,12 @@ def build_index(index_mat):
     vectors = scaler.fit_transform(raw_vectors)
 
     # Normalise vectors
-    # faiss.normalize_L2(vectors)
+    faiss.normalize_L2(vectors)
 
     # Build index
     print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] BuildIndex: Start building faiss index")
-    # faiss_index = faiss.IndexFlatIP(n)
-    faiss_index = faiss.IndexFlat(vectors.shape[1])
+    faiss_index = faiss.IndexFlatIP(vectors.shape[1])
+    # faiss_index = faiss.IndexFlat(vectors.shape[1])
 
     # Add vectors to index
     faiss_index.add(vectors)
