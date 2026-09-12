@@ -6,6 +6,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from dotenv import load_dotenv
 from scripts.build_query_vector import build_query_vector
+from scripts.build_query_vector_tzanetakis import build_query_vector_tzanetakis
 from app.models import *
 from .serialisers import TrackSerialiser
 import magic
@@ -78,13 +79,14 @@ def similar(request):
         return JsonResponse({'error': 'only audio files are supported'}, status=400)
 
     # Build query vector
-    query_vector = build_query_vector(tmp_path)
+    # query_vector = build_query_vector(tmp_path)
+    query_vector = build_query_vector_tzanetakis(tmp_path)
 
     # Apply scaler to query vector
     query_vector = scaler.transform(query_vector)
 
     # Normalise query vector
-    faiss.normalize_L2(query_vector)
+    # faiss.normalize_L2(query_vector)
 
     try:
         distances, indices = faiss_index.search(query_vector, n)
