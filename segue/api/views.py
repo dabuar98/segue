@@ -43,6 +43,9 @@ def similar(request):
     # Show distance between query track and returned vector? (Default False)
     dist = request.POST.get('dist', 'false').lower()
 
+    # Filter recommended tracks by subgenre (Default None, i.e. no filtering)
+    subgenre = request.POST.get('subgenre', None)
+
     # # Show cosine-based similarity? (Default False)
     # sim = request.POST.get('sim', 'false').lower()
 
@@ -97,17 +100,25 @@ def similar(request):
 
     # Store database objects retrieved in a dict
     tracks_objects = []
+    tracks_distances = []
 
-    for index in indices[0]:
+    for index, distance in zip(indices[0], distances[0]):
         # Get mbid from tracks using index
         mbid = list(tracks.keys())[index]
-        # Retrieve object from database using mbid and add it to tracks_objects
-        tracks_objects.append(Tracks.objects.get(mbid=mbid))
+        # Retrieve object from database using mbid
+        track_obj = Tracks.objects.get(mbid=mbid)
+
+        # If a subgenre filter is set, skip tracks whose subgenres don't match or contain it
+        if subgenre and not track_obj.genres.filter(genre__icontains=subgenre).exists():
+            continue
+
+        tracks_objects.append(track_obj)
+        tracks_distances.append(distance)
 
     serialiser = TrackSerialiser(tracks_objects, many=True)
 
     if dist == 'true':
-        for track, distance in zip(serialiser.data, distances[0]):
+        for track, distance in zip(serialiser.data, tracks_distances):
             track['distance'] = round(float(distance), 6)
 
     # if sim == 'true':
