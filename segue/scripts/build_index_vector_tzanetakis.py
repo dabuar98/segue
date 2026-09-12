@@ -3,7 +3,7 @@ import os
 import numpy as np
 from datetime import datetime
 from dotenv import load_dotenv
-from utils import map_key_former_essentiav, map_key_scale
+from utils import map_key_former_version, map_key_scale
 
 def build_index_vector_tzanetakis(af_dict):
     """
@@ -55,7 +55,7 @@ def build_index_vector_tzanetakis(af_dict):
     # Pitch content - Harmony: Features based on pitch histograms (4 dimensions)
     # The most dominant pitch class of the song
     tmp_list.append(
-        map_key_former_essentiav(af_dict.get('tonal').get('chords_key'))
+        map_key_former_version(af_dict.get('tonal').get('chords_key'))
     )
     # The most dominant octave range of the dominant musical key
     tmp_list.append(
