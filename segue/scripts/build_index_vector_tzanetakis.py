@@ -72,7 +72,7 @@ def build_index_vector_tzanetakis(af_dict):
     # Transform array into a 1 x D
     result = result.reshape(1, d)
 
-    print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] BuildIndexVectorTzanetakis: Created a {result.shape} vector")
+    # print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] BuildIndexVectorTzanetakis: Created a {result.shape} vector")
     return result
 
 ###### Executable ########
