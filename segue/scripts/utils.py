@@ -1,11 +1,15 @@
 import numpy as np
 
-def map_key_former_essentiav(key):
+def map_key_former_version(key):
     """
     Map key to its integer value according to Lavengood [1]. Keys are represented with enharmonic equivalents A#/Bb,
     D#/Eb and G#/Ab from Essentia v2.1-beta2
-    :params key: (str) : Key in { "A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#" } [2]
-    :returns value: (int) : Value to be mapped
+    Args:
+        key: Key in { "A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#" } [2] (string)
+
+    Returns:
+        value: Value to be mapped (integer)
+
     References:
     [1] M. Lavengood, "Pitch and pitch class," in Open Music Theory, VIVA Pressbooks, 2023.
         [Online]. Available: https://viva.pressbooks.pub/openmusictheory/chapter/pitch-and-pitch-class/.
@@ -39,6 +43,39 @@ def map_key_scale(key_scale):
     """
     return 1 if key_scale == 'major' else -1
 
+def map_key_current_version(key):
+    """
+    Map key to its integer value according to Lavengood [1]
+    Args:
+        key: Key in { "A", "Bb", "B", "C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab" } [2] (string)
+
+    Returns:
+        value: Value to be mapped (integer)
+        
+    References:
+        [1] M. Lavengood, "Pitch and pitch class," in Open Music Theory, VIVA Pressbooks, 2023.
+            [Online]. Available: https://viva.pressbooks.pub/openmusictheory/chapter/pitch-and-pitch-class/.
+            [Accessed: Jul. 26, 2026].
+        [2] Music Technology Group, Universitat Pompeu Fabra, "key.cpp," Essentia (source code repository), commit 3089d2d, GitHub.
+            [Online]. Available: https://github.com/MTG/essentia/blob/b9fa6cb674ca43dfb94d28d293aeda441c6745db/src/algorithms/tonal/key.cpp.
+            [Accessed: Jul. 26, 2026].
+    """
+    key_map = {
+        'C': 0,
+        'C#': 1,
+        'D': 2,
+        'Eb': 3,
+        'E': 4,
+        'F': 5,
+        'F#': 6,
+        'G': 7,
+        'Ab': 8,
+        'A': 9,
+        'Bb': 10,
+        'B': 11,
+    }
+
+    return key_map[key]
 
 def cosine_similarity(vect_A, vect_B):
     """
