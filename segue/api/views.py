@@ -41,12 +41,12 @@ def similar(request):
     n = request.POST.get('n', 20)
 
     # Show distance between query track and returned vector? (Default False)
-    dist = request.POST.get('dist', 'false').lower()
+    show_sim = request.POST.get('show_sim', 'false').lower()
 
     # Filter recommended tracks by subgenre (Default None, i.e. no filtering)
     subgenre = request.POST.get('subgenre', None)
 
-    # # Show cosine-based similarity? (Default False)
+    # Show cosine-based similarity? (Default False)
     # sim = request.POST.get('sim', 'false').lower()
 
     # Validate if n is an integer, return error otherwise
@@ -62,10 +62,10 @@ def similar(request):
     if n > 50: return JsonResponse({'error': 'n must be less than 50'}, status=400)
 
     # Validate if dist is a boolean
-    if dist not in ['true', 'false']:
+    if show_sim not in ['true', 'false']:
         return JsonResponse({'error': 'dist must be a boolean'}, status=400)
 
-    # Validate if sim is a boolean
+    # # Validate if sim is a boolean
     # if sim not in ['true', 'false']:
     #     return JsonResponse({'error': 'sim must be a boolean'}, status=400)
 
@@ -89,7 +89,7 @@ def similar(request):
     query_vector = scaler.transform(query_vector)
 
     # Normalise query vector
-    # faiss.normalize_L2(query_vector)
+    faiss.normalize_L2(query_vector)
 
     try:
         distances, indices = faiss_index.search(query_vector, n)
@@ -117,7 +117,7 @@ def similar(request):
 
     serialiser = TrackSerialiser(tracks_objects, many=True)
 
-    if dist == 'true':
+    if show_sim == 'true':
         for track, distance in zip(serialiser.data, tracks_distances):
             track['distance'] = round(float(distance), 6)
 
