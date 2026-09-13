@@ -77,6 +77,22 @@ def map_key_current_version(key):
 
     return key_map[key]
 
+def is_valid_int(value):
+    """
+    Checks whether value is an integer
+    Args:
+        value: number to be checked (string)
+
+    Returns:
+        boolean: True if it is an integer, False otherwise
+
+    """
+    try:
+        int(value)
+        return True
+    except ValueError:
+        return False
+
 def cosine_similarity(vect_A, vect_B):
     """
     Computes the cosine similarity between vect_A and vect_B
