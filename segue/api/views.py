@@ -7,7 +7,7 @@ from django.views.decorators.http import require_POST
 from dotenv import load_dotenv
 from scripts.build_query_vector import build_query_vector
 from scripts.build_query_vector_tzanetakis import build_query_vector_tzanetakis
-from app.models import *
+from api.models import *
 from .serialisers import TrackSerialiser
 import magic
 import faiss
