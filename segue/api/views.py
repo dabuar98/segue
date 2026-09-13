@@ -1,3 +1,4 @@
+import logging
 import os
 import tempfile
 from django.http import JsonResponse
@@ -6,6 +7,7 @@ from django.views.decorators.http import require_POST
 from dotenv import load_dotenv
 from scripts.build_query_vector import build_query_vector
 from scripts.build_query_vector_tzanetakis import build_query_vector_tzanetakis
+from scripts.utils import is_valid_int
 from api.models import *
 from .serialisers import TrackSerialiser
 import magic
@@ -18,6 +20,9 @@ To run it curl -s -X POST http://localhost:8000/api/similar/ -F "audio=@data/sam
 
 load_dotenv()
 DATA_PATH = os.getenv("DATA_PATH")
+
+# Create logger to print any error to the console
+logger = logging.getLogger(__name__)
 
 # Load index
 faiss_index = faiss.read_index(f"{DATA_PATH}/index_tzanetakis.faiss")
@@ -43,7 +48,8 @@ def similar(request):
         subgenre = request.POST.get('subgenre', None)
 
         # Validate if n is an integer, return error otherwise
-        if not isinstance(n, int): return JsonResponse({'error': 'n must be a integer'}, status=400)
+        if not is_valid_int(n): return JsonResponse({'error': 'n must be a integer'}, status=400)
+        else: n = int(n)
 
         # Validate that n is a positive number
         if n < 0: return JsonResponse({'error': 'n must be a positive integer'}, status=400)
@@ -106,5 +112,6 @@ def similar(request):
 
         return JsonResponse(serialiser.data, safe=False)
     except Exception as e:
+        logger.exception(e)
         return JsonResponse({'error': 'system error'}, status=500)
 
