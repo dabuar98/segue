@@ -1,4 +1,3 @@
-import json
 import os
 import tempfile
 from django.http import JsonResponse
@@ -19,10 +18,6 @@ To run it curl -s -X POST http://localhost:8000/api/similar/ -F "audio=@data/sam
 
 load_dotenv()
 DATA_PATH = os.getenv("DATA_PATH")
-
-# Read JSON file
-with open(f"{DATA_PATH}/tracks.json", "r") as f:
-    tracks = json.loads(f.read())
 
 # Load index
 faiss_index = faiss.read_index(f"{DATA_PATH}/index_tzanetakis.faiss")
@@ -95,10 +90,8 @@ def similar(request):
     tracks_distances = []
 
     for index, distance in zip(indices[0], distances[0]):
-        # Get mbid from tracks using index
-        mbid = list(tracks.keys())[index]
-        # Retrieve object from database using mbid
-        track_obj = Tracks.objects.get(mbid=mbid)
+        # Retrieve object from database
+        track_obj = Tracks.objects.get(id=index)
 
         # If a subgenre filter is set, skip tracks whose subgenres don't match or contain it
         if subgenre and not track_obj.genres.filter(genre__icontains=subgenre).exists():
