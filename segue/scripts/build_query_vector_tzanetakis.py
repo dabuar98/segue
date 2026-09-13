@@ -1,8 +1,8 @@
 import os
 import numpy as np
 from dotenv import load_dotenv
-from extract_query_descriptors import extract_query_descriptors
-from utils import map_key_current_version, map_key_scale
+from .extract_query_descriptors import extract_query_descriptors
+from .utils import map_key_current_version, map_key_scale
 from datetime import datetime
 def build_query_vector_tzanetakis(query_track):
     """
