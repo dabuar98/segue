@@ -12,7 +12,6 @@ from .serialisers import TrackSerialiser
 import magic
 import faiss
 import joblib
-from scripts.utils import cosine_similarity
 
 """
 To run it curl -s -X POST http://localhost:8000/api/similar/ -F "audio=@data/sample.mp3" | python -m json.tool
@@ -26,10 +25,10 @@ with open(f"{DATA_PATH}/tracks.json", "r") as f:
     tracks = json.loads(f.read())
 
 # Load index
-faiss_index = faiss.read_index(f"{DATA_PATH}/index.faiss")
+faiss_index = faiss.read_index(f"{DATA_PATH}/index_tzanetakis.faiss")
 
 # Load scaler
-scaler = joblib.load(f"{DATA_PATH}/index_scaler.joblib")
+scaler = joblib.load(f"{DATA_PATH}/index_scaler_tzanetakis.joblib")
 
 @require_POST
 @csrf_exempt
@@ -40,14 +39,11 @@ def similar(request):
     # Get number of tracks to return (Default 20)
     n = request.POST.get('n', 20)
 
-    # Show distance between query track and returned vector? (Default False)
+    # Show similarity between query track and returned vector? (Default False)
     show_sim = request.POST.get('show_sim', 'false').lower()
 
     # Filter recommended tracks by subgenre (Default None, i.e. no filtering)
     subgenre = request.POST.get('subgenre', None)
-
-    # Show cosine-based similarity? (Default False)
-    # sim = request.POST.get('sim', 'false').lower()
 
     # Validate if n is an integer, return error otherwise
     try:
@@ -64,10 +60,6 @@ def similar(request):
     # Validate if dist is a boolean
     if show_sim not in ['true', 'false']:
         return JsonResponse({'error': 'dist must be a boolean'}, status=400)
-
-    # # Validate if sim is a boolean
-    # if sim not in ['true', 'false']:
-    #     return JsonResponse({'error': 'sim must be a boolean'}, status=400)
 
     # Create temporary file to store submitted audio file
     suffix = os.path.splitext(audio_file.name)[1]
@@ -120,14 +112,5 @@ def similar(request):
     if show_sim == 'true':
         for track, distance in zip(serialiser.data, tracks_distances):
             track['distance'] = round(float(distance), 6)
-
-    # if sim == 'true':
-    #     for track, idx in zip(serialiser.data, indices[0]):
-    #         # Retrieve response vector from FAISS index
-    #         vect = faiss_index.reconstruct(int(idx))
-    #         # Compute cosine similarity
-    #         similarity = cosine_similarity(query_vector, vect)
-    #         # Display similarity as percentage
-    #         track['similarity'] = round(similarity, 6)
 
     return JsonResponse(serialiser.data, safe=False)
