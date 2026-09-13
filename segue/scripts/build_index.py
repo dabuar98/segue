@@ -37,11 +37,11 @@ def build_index(index_mat):
     print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] BuildIndex: {faiss_index.ntotal:,} vectors added to faiss index")
 
     # Store index for offline computation
-    faiss.write_index(faiss_index, f"{DATA_PATH}/index.faiss")
+    faiss.write_index(faiss_index, f"{DATA_PATH}/index_tzanetakis.faiss")
     print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] BuildIndex: Index exported")
 
     # Export scaler to normalise query vector
-    joblib.dump(scaler, f"{DATA_PATH}/index_scaler.joblib")
+    joblib.dump(scaler, f"{DATA_PATH}/index_scaler_tzanetakis.joblib")
     print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] BuildIndex: Scaler exported")
 
 ##### Executable ######
