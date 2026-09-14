@@ -49,7 +49,7 @@ def similar(request):
 
         # Validate if n is an integer, return error otherwise
         if not is_valid_int(n): return JsonResponse({'error': 'n must be a integer'}, status=400)
-        else: n = int(n)
+        n = int(n)
 
         # Validate that n is a positive number
         if n < 0: return JsonResponse({'error': 'n must be a positive integer'}, status=400)
@@ -86,32 +86,54 @@ def similar(request):
         # Normalise query vector
         faiss.normalize_L2(query_vector)
 
-        # Compute search
-        distances, indices = faiss_index.search(query_vector, n)
-
         # Store database objects retrieved in a dict
         tracks_objects = []
         tracks_distances = []
 
-        for index, distance in zip(indices[0], distances[0]):
-            # Retrieve object from database
-            track_obj = Tracks.objects.get(id=index)
+        # Store indices previously visited
+        seen_indices = set()
 
-            # If a subgenre filter is set, skip tracks whose subgenres don't match or contain it
-            if subgenre and not track_obj.genres.filter(genre__icontains=subgenre).exists():
-                continue
+        # Number of candidates to pull from the index this pass
+        search_k = n
+        max_k = faiss_index.ntotal
 
-            tracks_objects.append(track_obj)
-            tracks_distances.append(distance)
+        while len(tracks_objects) < n:
+            # Compute search
+            distances, indices = faiss_index.search(query_vector, search_k)
+
+            for index, distance in zip(indices[0], distances[0]):
+                # Skip candidates already seen previously
+                if index in seen_indices:
+                    continue
+                seen_indices.add(index)
+
+                # Retrieve object from database
+                track_obj = Tracks.objects.get(id=index)
+
+                # If a subgenre filter is set, skip tracks whose subgenres don't match or contain it
+                if subgenre and not track_obj.genres.filter(genre__icontains=subgenre).exists():
+                    continue
+
+                tracks_objects.append(track_obj)
+                tracks_distances.append(distance)
+
+                if len(tracks_objects) == n:
+                    break
+
+            # Stop once we've searched the entire index
+            if search_k >= max_k:
+                break
+
+            # Double each pass to reach new candidates
+            search_k = min(search_k * 2, max_k)
 
         serialiser = TrackSerialiser(tracks_objects, many=True)
 
         if show_sim == 'true':
             for track, distance in zip(serialiser.data, tracks_distances):
-                track['distance'] = round(float(distance), 6)
+                track['similarity'] = round(float(distance), 6)
 
         return JsonResponse(serialiser.data, safe=False)
     except Exception as e:
         logger.exception(e)
         return JsonResponse({'error': 'system error'}, status=500)
-
