@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from app.models import Tracks
+from api.models import Tracks
 
 class TrackSerialiser(serializers.ModelSerializer):
     subgenres = serializers.SlugRelatedField(
