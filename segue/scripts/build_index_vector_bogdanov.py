@@ -115,7 +115,7 @@ if __name__ == "__main__":
     load_dotenv()
     BUCKET_NAME = os.getenv("BUCKET_NAME")
     DATA_PATH = os.getenv("DATA_PATH")
-    with open (f"{DATA_PATH}/audio_features_sample.json", 'r') as f:
+    with open (f"{DATA_PATH}/miscellaneous/audio_features_sample.json", 'r') as f:
         af = json.load(f)
     vector = build_index_vector_bogdanov(af)
     print(vector)

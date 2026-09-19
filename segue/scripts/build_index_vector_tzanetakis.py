@@ -3,7 +3,7 @@ import os
 import numpy as np
 from datetime import datetime
 from dotenv import load_dotenv
-from utils import map_key_former_version, map_key_scale
+from .utils import map_key_former_version, map_key_scale
 
 def build_index_vector_tzanetakis(af_dict):
     """
@@ -80,7 +80,7 @@ if __name__ == "__main__":
     load_dotenv()
     BUCKET_NAME = os.getenv("BUCKET_NAME")
     DATA_PATH = os.getenv("DATA_PATH")
-    with open (f"{DATA_PATH}/audio_features_sample.json", 'r') as f:
+    with open (f"{DATA_PATH}/miscellaneous/audio_features_sample.json", 'r') as f:
         af = json.load(f)
     vector = build_index_vector_tzanetakis(af)
     print(vector)

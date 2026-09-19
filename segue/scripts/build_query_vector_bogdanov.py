@@ -1,7 +1,7 @@
 import os
 import numpy as np
 from dotenv import load_dotenv
-from extract_query_descriptors import extract_query_descriptors
+from .extract_query_descriptors import extract_query_descriptors
 from datetime import datetime
 
 def build_query_vector_bogdanov(query_track):
@@ -117,5 +117,5 @@ if __name__ == "__main__":
     load_dotenv()
     BUCKET_NAME = os.getenv("BUCKET_NAME")
     DATA_PATH = os.getenv("DATA_PATH")
-    vector = build_query_vector_bogdanov(f"{DATA_PATH}/sample.mp3")
+    vector = build_query_vector_bogdanov(f"{DATA_PATH}/miscellaneous/sample.mp3")
     print(vector)

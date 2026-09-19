@@ -4,8 +4,8 @@ import boto3
 import numpy as np
 from botocore.exceptions import ClientError
 from dotenv import load_dotenv
-from build_index_vector_tzanetakis import build_index_vector_tzanetakis
-from build_index_vector_bogdanov import build_index_vector_bogdanov
+from .build_index_vector_tzanetakis import build_index_vector_tzanetakis
+from .build_index_vector_bogdanov import build_index_vector_bogdanov
 from datetime import datetime
 
 # Maps a descriptor set name to the vector-builder function used to compute each track's descriptors

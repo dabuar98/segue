@@ -81,5 +81,5 @@ if __name__ == "__main__":
     load_dotenv()
     BUCKET_NAME = os.getenv("BUCKET_NAME")
     DATA_PATH = os.getenv("DATA_PATH")
-    vector = build_query_vector_tzanetakis(f"{DATA_PATH}/sample.mp3")
+    vector = build_query_vector_tzanetakis(f"{DATA_PATH}/miscellaneous/sample.mp3")
     print(vector)
