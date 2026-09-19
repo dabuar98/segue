@@ -1,60 +1,33 @@
-"""
-Build a 1 x D vector where D is the dimension (231 descriptor values) that is passed as query vector to compute similarity
-Parameters:
-    input_path (str) : Path to the query track
-Returns:
-    result (nparray): A 1 x D Numpy array containing the values of the audio descriptors
-"""
 import numpy as np
 from .extract_query_descriptors import extract_query_descriptors
+from .utils import map_key_current_version, map_key_scale
 from datetime import datetime
 
-def map_key(key):
+def build_query_vector_schedl(query_track):
     """
-    Map key to its integer value (Representation of pitch class in set theory) [1]
-    :params key: (str) : Keys in { "A", "Bb", "B", "C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab" } [2]
-    :returns value: (int) : Value to be mapped
+    Build a 1 x D vector where D is the dimension (number of descriptors) that is passed as query vector to compute
+    similarity. The selection of the audio features is based on the descriptor set suggested by Schedl et al. [1]:
+    key, key scale, key strength, harmonic pitch class profile, MFCCs (mean and variance), spectral centroid,
+    rolloff, flux, zero-crossing rate, tempo, danceability, beats loudness, and onset rate.
+    Args:
+        query_track: Path to the query track (string)
+
+    Returns:
+        query_vector: 1 x D Numpy array containing the values of the audio descriptors
+
     References:
-        [1] M. Lavengood, "Pitch and pitch class," in Open Music Theory, VIVA Pressbooks, 2023.
-            [Online]. Available: https://viva.pressbooks.pub/openmusictheory/chapter/pitch-and-pitch-class/.
-            [Accessed: Jul. 26, 2026].
-        [2] Music Technology Group, Universitat Pompeu Fabra, "key.cpp," Essentia (source code repository), commit 3089d2d, GitHub.
-            [Online]. Available: https://github.com/MTG/essentia/blob/b9fa6cb674ca43dfb94d28d293aeda441c6745db/src/algorithms/tonal/key.cpp.
-            [Accessed: Jul. 26, 2026].
+        [1]     M. Schedl, E. Gómez, and J. Urbano, "Music information retrieval: Recent developments and
+                applications," Foundations and Trends in Information Retrieval, vol. 8, no. 2-3, pp. 127-261,
+                2014.
     """
-    key_map = {
-        'C': 0,
-        'C#': 1,
-        'D': 2,
-        'Eb': 3,
-        'E': 4,
-        'F': 5,
-        'F#': 6,
-        'G': 7,
-        'Ab': 8,
-        'A': 9,
-        'Bb': 10,
-        'B': 11,
-    }
-
-    return key_map[key]
-
-def map_key_scale(key_scale):
-    """
-    :params key_scale: (str) : scale of the key (major or minor)
-    :returns value: (int) : Value to be mapped (1 or 0)
-    """
-    return 1 if key_scale == 'major' else 0
-
-def build_query_vector(input_path):
     # Compute audio descriptors
-    descriptors = extract_query_descriptors(input_path)
+    descriptors = extract_query_descriptors(query_track)
     # Store descriptors in a list
     tmp_list = []
 
     # Add scalar tonal key values
     tmp_list.append(
-        map_key(descriptors.get('tonal').get('key_edma').get('key'))
+        map_key_current_version(descriptors.get('tonal').get('key_edma').get('key'))
     )
     tmp_list.append(
         map_key_scale(descriptors.get('tonal').get('key_edma').get('scale'))
@@ -91,9 +64,19 @@ def build_query_vector(input_path):
 
     d = len(tmp_list) # Dimension of the vector
     # Instantiate empty a Numpy array
-    result = np.array(tmp_list, dtype='float32')
+    query_vector = np.array(tmp_list, dtype='float32')
     # Transform array into a 1 x D
-    result = result.reshape(1, d)
+    query_vector = query_vector.reshape(1, d)
 
-    print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] BuildQueryVector: Created a {result.shape} vector")
-    return result
+    print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] BuildQueryVectorSchedl: Created a {query_vector.shape} vector")
+    return query_vector
+
+###### Executable ########
+if __name__ == "__main__":
+    import os
+    from dotenv import load_dotenv
+    load_dotenv()
+    BUCKET_NAME = os.getenv("BUCKET_NAME")
+    DATA_PATH = os.getenv("DATA_PATH")
+    vector = build_query_vector_schedl(f"{DATA_PATH}/miscellaneous/sample.mp3")
+    print(vector)

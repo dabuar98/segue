@@ -1,59 +1,33 @@
-"""
-Create an array D x 1 with the audio features values retrieved for a mbid
-Parameters:
-    af_dict (dict): A dict representation of the audio features
-Returns:
-    result (nparray): A 1 x D Numpy array containing the values of the audio descriptors
-"""
 import json
+import os
 import numpy as np
 from datetime import datetime
+from dotenv import load_dotenv
+from .utils import map_key_former_version, map_key_scale
 
-def map_key(key):
+def build_index_vector_schedl(af_dict):
     """
-    Map key to its integer value (Representation of pitch class in set theory) [1]
-    :params key: (str) : Keys in { "A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#" } [2]
-    :returns value: (int) : Value to be mapped
+    Create an 1 xD array with the audio features values retrieved for a mbid.
+    The selection of the audio features is based on the descriptor set suggested by Schedl et al. [1]: key,
+    key scale, key strength, harmonic pitch class profile, MFCCs (mean and variance), spectral centroid,
+    rolloff, flux, zero-crossing rate, tempo, danceability, beats loudness, and onset rate.
+    Args:
+        af_dict (dict): A dict representation of the audio features
+
+    Returns:
+        result (nparray): A 1 x D Numpy array containing the values of the audio descriptors
+
     References:
-    [1] M. Lavengood, "Pitch and pitch class," in Open Music Theory, VIVA Pressbooks, 2023.
-        [Online]. Available: https://viva.pressbooks.pub/openmusictheory/chapter/pitch-and-pitch-class/.
-        [Accessed: Jul. 26, 2026].
-    [2] Music Technology Group, Universitat Pompeu Fabra, "key.cpp," essentia, v2.1_beta2.
-        [Online]. Available: https://github.com/MTG/essentia/blob/v2.1_beta2/src/algorithms/tonal/key.cpp.
-        [Accessed: Jul. 26, 2026].
+        [1]     M. Schedl, E. Gómez, and J. Urbano, "Music information retrieval: Recent developments and
+                applications," Foundations and Trends in Information Retrieval, vol. 8, no. 2-3, pp. 127-261,
+                2014.
     """
-    # Key map with enharmonic equivalents A#/Bb, D#/Eb and G#/Ab from Essentia v2.1-beta2
-    key_map = {
-        'C': 0,
-        'C#': 1,
-        'D': 2,
-        'D#': 3,
-        'E': 4,
-        'F': 5,
-        'F#': 6,
-        'G': 7,
-        'G#': 8,
-        'A': 9,
-        'A#': 10,
-        'B': 11,
-    }
-
-    return key_map[key]
-
-def map_key_scale(key_scale):
-    """
-    :params key_scale: (str) : scale of the key (major or minor)
-    :returns value: (int) : Value to be mapped (1 or 0)
-    """
-    return 1 if key_scale == 'major' else 0
-
-def build_index_vector(af_dict):
     # Store descriptors in a list
     tmp_list = []
 
     # Add scalar tonal key values (former version)
     tmp_list.append(
-        map_key(af_dict.get('tonal').get('key_key'))
+        map_key_former_version(af_dict.get('tonal').get('key_key'))
     )
     tmp_list.append(
         map_key_scale(af_dict.get('tonal').get('key_scale'))
@@ -94,5 +68,15 @@ def build_index_vector(af_dict):
     # Transform array into a 1 x D
     result = result.reshape(1, d)
 
-    # print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] BuildIndexVector: Created a {result.shape} vector")
+    # print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] BuildIndexVectorSchedl: Created a {result.shape} vector")
     return result
+
+###### Executable ########
+if __name__ == "__main__":
+    load_dotenv()
+    BUCKET_NAME = os.getenv("BUCKET_NAME")
+    DATA_PATH = os.getenv("DATA_PATH")
+    with open (f"{DATA_PATH}/miscellaneous/audio_features_sample.json", 'r') as f:
+        af = json.load(f)
+    vector = build_index_vector_schedl(af)
+    print(vector)
