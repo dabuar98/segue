@@ -60,6 +60,6 @@ if __name__ == "__main__":
     load_dotenv()
     BUCKET_NAME = os.getenv("BUCKET_NAME")
     DATA_PATH = os.getenv("DATA_PATH")
-    descriptors = extract_query_descriptors(f"{DATA_PATH}/sample.mp3")
-    with open(f"{DATA_PATH}/sample_query_descriptors.json", "w") as outfile:
+    descriptors = extract_query_descriptors(f"{DATA_PATH}/miscellaneous/sample.mp3")
+    with open(f"{DATA_PATH}/miscellaneous/sample_query_descriptors.json", "w") as outfile:
         json.dump(descriptors, outfile)
