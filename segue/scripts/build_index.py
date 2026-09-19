@@ -6,13 +6,13 @@ import os
 from sklearn.preprocessing import StandardScaler
 import joblib
 
-def build_index(index_mat):
+def build_index(index_mat, descriptor_set='tzanetakis'):
     """
     Generate the FAISS index used to compute similarity. Following Linden et al. [1], the index produced in this script
     is stored for offline similarity computation.
     Args:
         index_mat: Index matrix (NumPy binary)
-        n: Number of audio descriptors (integer)
+        descriptor_set: Name of the descriptor set the matrix was built with, used to name the output files (string)
 
     Returns:
         None
@@ -37,11 +37,11 @@ def build_index(index_mat):
     print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] BuildIndex: {faiss_index.ntotal:,} vectors added to faiss index")
 
     # Store index for offline computation
-    faiss.write_index(faiss_index, f"{DATA_PATH}/index_tzanetakis.faiss")
+    faiss.write_index(faiss_index, f"{DATA_PATH}/index_{descriptor_set}.faiss")
     print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] BuildIndex: Index exported")
 
     # Export scaler to normalise query vector
-    joblib.dump(scaler, f"{DATA_PATH}/index_scaler_tzanetakis.joblib")
+    joblib.dump(scaler, f"{DATA_PATH}/index_scaler_{descriptor_set}.joblib")
     print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] BuildIndex: Scaler exported")
 
 ##### Executable ######
@@ -49,4 +49,5 @@ if __name__ == "__main__":
     load_dotenv()
     DATA_PATH = os.getenv("DATA_PATH")
     build_index(f"{DATA_PATH}/index_mat_tzanetakis.npy")
+    build_index(f"{DATA_PATH}/index_mat_bogdanov.npy", descriptor_set='bogdanov')
 
