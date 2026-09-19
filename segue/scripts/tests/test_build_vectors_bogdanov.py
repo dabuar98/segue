@@ -21,7 +21,7 @@ DATA_PATH = os.getenv("DATA_PATH")
 
 class TestBuildVectorsBogdanov(unittest.TestCase):
     def test_build_index_vector_bogdanov(self):
-        with open(f"{DATA_PATH}/audio_features_sample.json") as f:
+        with open(f"{DATA_PATH}/miscellaneous/audio_features_sample.json") as f:
             data = json.load(f) # Transform to a Python dict
 
         result = build_index_vector_bogdanov(data) # Receives a Python dict
