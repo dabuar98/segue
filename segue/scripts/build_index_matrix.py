@@ -5,19 +5,28 @@ import numpy as np
 from botocore.exceptions import ClientError
 from dotenv import load_dotenv
 from build_index_vector_tzanetakis import build_index_vector_tzanetakis
+from build_index_vector_bogdanov import build_index_vector_bogdanov
 from datetime import datetime
 
-def build_index_matrix(tracks, n):
+# Maps a descriptor set name to the vector-builder function used to compute each track's descriptors
+VECTOR_BUILDERS = {
+    'tzanetakis': build_index_vector_tzanetakis,
+    'bogdanov': build_index_vector_bogdanov,
+}
+
+def build_index_matrix(tracks, n, descriptor_set='tzanetakis'):
     """
     Build the feature vector space matrix that is used as FAISS index to compute similarity
     Args:
         tracks: A string containing tracks information (string)
         n: The number of audio descriptors (integer)
+        descriptor_set: Which descriptor set to build the vectors with, one of VECTOR_BUILDERS' keys (string)
 
     Returns:
         index matrix :  A M x N matrix representing the feature vector space used to feed FAISS where M is the number
                         of tracks and N is the dimension of each vector (number of descriptors)
     """
+    vector_builder = VECTOR_BUILDERS[descriptor_set]
     total_processed = 0 # For stats
     # Instantiate S3 client
     s3 = boto3.client('s3')
@@ -44,7 +53,7 @@ def build_index_matrix(tracks, n):
             continue
 
         # If data is loaded, build index vector and
-        vector = build_index_vector_tzanetakis(data) # Returns a 1 x D vector
+        vector = vector_builder(data) # Returns a 1 x D vector
 
         # Add vector as column in matrix (insertion order given by idx)
         index_matrix[idx, :] = vector
@@ -55,7 +64,7 @@ def build_index_matrix(tracks, n):
     print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] BuildIndexMatrix: {"There are values missing" if np.isnan(index_matrix).any() else "There are not values missing"}")
 
     # Save the index matrix as a separate binary numpy file
-    with open (f"{DATA_PATH}/index_mat_tzanetakis.npy", "wb") as f:
+    with open (f"{DATA_PATH}/index_mat_{descriptor_set}.npy", "wb") as f:
         np.save(f, index_matrix)
     
     print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] BuildIndexMatrix: Index matrix binary exported")
@@ -68,4 +77,5 @@ if __name__ == "__main__":
     BUCKET_NAME = os.getenv("BUCKET_NAME")
     DATA_PATH = os.getenv("DATA_PATH")
     build_index_matrix(f"{DATA_PATH}/tracks.json", 28)
+    build_index_matrix(f"{DATA_PATH}/tracks.json", 196, descriptor_set='bogdanov')
 
