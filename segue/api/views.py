@@ -26,16 +26,19 @@ DATA_PATH = os.getenv("DATA_PATH")
 logger = logging.getLogger(__name__)
 
 # Load indices
+faiss_index_schedl = faiss.read_index(f"{DATA_PATH}/indexes/index_schedl.faiss")
 faiss_index_tzanetakis = faiss.read_index(f"{DATA_PATH}/indexes/index_tzanetakis.faiss")
 faiss_index_bogdanov = faiss.read_index(f"{DATA_PATH}/indexes/index_bogdanov.faiss")
 
 # Load scalers
+scaler_schedl = joblib.load(f"{DATA_PATH}/scalers/index_scaler_schedl.joblib")
 scaler_tzanetakis = joblib.load(f"{DATA_PATH}/scalers/index_scaler_tzanetakis.joblib")
 scaler_bogdanov = joblib.load(f"{DATA_PATH}/scalers/index_scaler_bogdanov.joblib")
 pca = joblib.load(f"{DATA_PATH}/scalers/index_bogdanov_pca.joblib")
 
 # Maps a descriptor set name to its (faiss index, scaler, query vector builder) triple
 DESCRIPTOR_SETS = {
+    'schedl': (faiss_index_schedl, scaler_schedl, build_query_vector_schedl),
     'tzanetakis': (faiss_index_tzanetakis, scaler_tzanetakis, build_query_vector_tzanetakis),
     'bogdanov': (faiss_index_bogdanov, scaler_bogdanov, build_query_vector_bogdanov),
 }
@@ -56,8 +59,8 @@ def similar(request):
         # Filter recommended tracks by subgenre (Default None, i.e. no filtering)
         subgenre = request.POST.get('subgenre', None)
 
-        # Which descriptor set to compute similarity with (Default Bogdanov)
-        descriptor_set = request.POST.get('descriptor_set', 'bogdanov')
+        # Which descriptor set to compute similarity with (Default Schedl's)
+        descriptor_set = request.POST.get('descriptor_set', 'schedl')
 
         # Validate that descriptor_set is a known descriptor set
         if descriptor_set not in DESCRIPTOR_SETS:
