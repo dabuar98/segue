@@ -76,6 +76,6 @@ if __name__ == "__main__":
     load_dotenv()
     BUCKET_NAME = os.getenv("BUCKET_NAME")
     DATA_PATH = os.getenv("DATA_PATH")
-    build_index_matrix(f"{DATA_PATH}/tracks.json", 28)
-    build_index_matrix(f"{DATA_PATH}/tracks.json", 196, descriptor_set='bogdanov')
+    #build_index_matrix(f"{DATA_PATH}/tracks.json", 28)
+    build_index_matrix(f"{DATA_PATH}/tracks.json", 107, descriptor_set='bogdanov')
 
