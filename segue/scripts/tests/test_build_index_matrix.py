@@ -9,7 +9,7 @@ from scripts.build_index_matrix import *
 # Define data path
 load_dotenv()
 DATA_PATH = os.getenv("DATA_PATH")
-input_path = f"{DATA_PATH}/tracks_min.json" # Take the min version for testing
+input_path = f"{DATA_PATH}/miscellaneous/tracks_min.json" # Take the min version for testing
 
 class TestBuildIndexMatrix(unittest.TestCase):
     def test_build_index_matrix(self):

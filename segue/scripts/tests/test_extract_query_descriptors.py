@@ -28,7 +28,7 @@ load_dotenv()
 
 # Define paths and compute result once (same result for all test suites
 DATA_PATH = os.getenv("DATA_PATH")
-result = extract_query_descriptors(f"{DATA_PATH}/sample.mp3")
+result = extract_query_descriptors(f"{DATA_PATH}/miscellaneous/sample.mp3")
 
 # Test that Essentia is returning the necessary information to build a query vector
 class TestExtractQueryDescriptors(unittest.TestCase):
