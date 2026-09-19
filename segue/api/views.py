@@ -5,7 +5,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from dotenv import load_dotenv
-from scripts.build_query_vector import build_query_vector
+from scripts.build_query_vector_schedl import build_query_vector_schedl
 from scripts.build_query_vector_tzanetakis import build_query_vector_tzanetakis
 from scripts.build_query_vector_bogdanov import build_query_vector_bogdanov
 from scripts.utils import is_valid_int
@@ -26,19 +26,19 @@ DATA_PATH = os.getenv("DATA_PATH")
 logger = logging.getLogger(__name__)
 
 # Load indices
-faiss_index_tzanetakis = faiss.read_index(f"{DATA_PATH}/index_tzanetakis.faiss")
-faiss_index_bogdanov = faiss.read_index(f"{DATA_PATH}/index_bogdanov.faiss")
+faiss_index_tzanetakis = faiss.read_index(f"{DATA_PATH}/indexes/index_tzanetakis.faiss")
+faiss_index_bogdanov = faiss.read_index(f"{DATA_PATH}/indexes/index_bogdanov.faiss")
 
 # Load scalers
-scaler_tzanetakis = joblib.load(f"{DATA_PATH}/index_scaler_tzanetakis.joblib")
-scaler_bogdanov = joblib.load(f"{DATA_PATH}/index_scaler_bogdanov.joblib")
+scaler_tzanetakis = joblib.load(f"{DATA_PATH}/scalers/index_scaler_tzanetakis.joblib")
+scaler_bogdanov = joblib.load(f"{DATA_PATH}/scalers/index_scaler_bogdanov.joblib")
+pca = joblib.load(f"{DATA_PATH}/scalers/index_bogdanov_pca.joblib")
 
 # Maps a descriptor set name to its (faiss index, scaler, query vector builder) triple
 DESCRIPTOR_SETS = {
     'tzanetakis': (faiss_index_tzanetakis, scaler_tzanetakis, build_query_vector_tzanetakis),
     'bogdanov': (faiss_index_bogdanov, scaler_bogdanov, build_query_vector_bogdanov),
 }
-
 
 @require_POST
 @csrf_exempt
@@ -56,8 +56,8 @@ def similar(request):
         # Filter recommended tracks by subgenre (Default None, i.e. no filtering)
         subgenre = request.POST.get('subgenre', None)
 
-        # Which descriptor set to compute similarity with (Default tzanetakis)
-        descriptor_set = request.POST.get('descriptor_set', 'tzanetakis')
+        # Which descriptor set to compute similarity with (Default Bogdanov)
+        descriptor_set = request.POST.get('descriptor_set', 'bogdanov')
 
         # Validate that descriptor_set is a known descriptor set
         if descriptor_set not in DESCRIPTOR_SETS:
@@ -93,7 +93,7 @@ def similar(request):
         faiss_index, scaler, build_query_vector_fn = DESCRIPTOR_SETS[descriptor_set]
 
         # Build query vector
-        # query_vector = build_query_vector(tmp_path)
+        # query_vector = build_query_vector_schedl(tmp_path)
         query_vector = build_query_vector_fn(tmp_path)
 
         # Remove uploaded content
@@ -102,8 +102,12 @@ def similar(request):
         # Apply scaler to query vector
         query_vector = scaler.transform(query_vector)
 
+        if descriptor_set == 'bogdanov':
+            # Apply PCA to query vector
+            query_vector = pca.transform(query_vector)
+
         # Normalise query vector
-        faiss.normalize_L2(query_vector)
+        # faiss.normalize_L2(query_vector)
 
         # Store database objects retrieved in a dict
         tracks_objects = []
