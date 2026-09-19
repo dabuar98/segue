@@ -7,6 +7,7 @@ from django.views.decorators.http import require_POST
 from dotenv import load_dotenv
 from scripts.build_query_vector import build_query_vector
 from scripts.build_query_vector_tzanetakis import build_query_vector_tzanetakis
+from scripts.build_query_vector_bogdanov import build_query_vector_bogdanov
 from scripts.utils import is_valid_int
 from api.models import *
 from .serialisers import TrackSerialiser
@@ -24,11 +25,19 @@ DATA_PATH = os.getenv("DATA_PATH")
 # Create logger to print any error to the console
 logger = logging.getLogger(__name__)
 
-# Load index
-faiss_index = faiss.read_index(f"{DATA_PATH}/index_tzanetakis.faiss")
+# Load indices
+faiss_index_tzanetakis = faiss.read_index(f"{DATA_PATH}/index_tzanetakis.faiss")
+faiss_index_bogdanov = faiss.read_index(f"{DATA_PATH}/index_bogdanov.faiss")
 
-# Load scaler
-scaler = joblib.load(f"{DATA_PATH}/index_scaler_tzanetakis.joblib")
+# Load scalers
+scaler_tzanetakis = joblib.load(f"{DATA_PATH}/index_scaler_tzanetakis.joblib")
+scaler_bogdanov = joblib.load(f"{DATA_PATH}/index_scaler_bogdanov.joblib")
+
+# Maps a descriptor set name to its (faiss index, scaler, query vector builder) triple
+DESCRIPTOR_SETS = {
+    'tzanetakis': (faiss_index_tzanetakis, scaler_tzanetakis, build_query_vector_tzanetakis),
+    'bogdanov': (faiss_index_bogdanov, scaler_bogdanov, build_query_vector_bogdanov),
+}
 
 
 @require_POST
@@ -46,6 +55,13 @@ def similar(request):
 
         # Filter recommended tracks by subgenre (Default None, i.e. no filtering)
         subgenre = request.POST.get('subgenre', None)
+
+        # Which descriptor set to compute similarity with (Default tzanetakis)
+        descriptor_set = request.POST.get('descriptor_set', 'tzanetakis')
+
+        # Validate that descriptor_set is a known descriptor set
+        if descriptor_set not in DESCRIPTOR_SETS:
+            return JsonResponse({'error': f"descriptor_set must be one of {list(DESCRIPTOR_SETS.keys())}"}, status=400)
 
         # Validate if n is an integer, return error otherwise
         if not is_valid_int(n): return JsonResponse({'error': 'n must be a integer'}, status=400)
@@ -73,9 +89,12 @@ def similar(request):
         if 'audio' not in magic.from_file(tmp_path, mime=True):
             return JsonResponse({'error': 'only audio files are supported'}, status=400)
 
+        # Resolve the faiss index, scaler and query vector builder for the selected descriptor set
+        faiss_index, scaler, build_query_vector_fn = DESCRIPTOR_SETS[descriptor_set]
+
         # Build query vector
         # query_vector = build_query_vector(tmp_path)
-        query_vector = build_query_vector_tzanetakis(tmp_path)
+        query_vector = build_query_vector_fn(tmp_path)
 
         # Remove uploaded content
         os.remove(tmp_path)
