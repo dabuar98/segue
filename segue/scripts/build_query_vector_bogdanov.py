@@ -35,6 +35,14 @@ def build_query_vector_bogdanov(query_track):
     tmp_list.append(lowlevel.get('pitch_salience').get('mean'))
     tmp_list.append(lowlevel.get('pitch_salience').get('var'))
 
+    # MFCCs: mean coefficient array (13 dimensions)
+    tmp_list.extend(lowlevel.get('mfcc').get('mean'))
+
+    # MFCCs: diagonal of the covariance matrix (13 dimensions)
+    mfcc_cov = lowlevel.get('mfcc').get('cov')
+    for i in range(len(mfcc_cov)):
+        tmp_list.append(mfcc_cov[i][i])
+
     # Spectral centroid, spread, kurtosis, rolloff, decrease, skewness: mean and variance of each (12 dimensions)
     for descriptor in [
         'spectral_centroid',
@@ -77,7 +85,13 @@ def build_query_vector_bogdanov(query_track):
         tmp_list.append(lowlevel.get(descriptor).get('mean'))
         tmp_list.append(lowlevel.get(descriptor).get('var'))
 
-    #  Rhythmic 
+    #  Rhythmic
+    # BPM histogram first and second peaks: BPM, weight and spread of each (6 dimensions)
+    for peak in ['first', 'second']:
+        tmp_list.append(rhythm.get(f'bpm_histogram_{peak}_peak_bpm'))
+        tmp_list.append(rhythm.get(f'bpm_histogram_{peak}_peak_weight'))
+        tmp_list.append(rhythm.get(f'bpm_histogram_{peak}_peak_spread'))
+
     # Beats loudness: mean and variance (2 dimensions)
     tmp_list.append(rhythm.get('beats_loudness').get('mean'))
     tmp_list.append(rhythm.get('beats_loudness').get('var'))
@@ -87,20 +101,56 @@ def build_query_vector_bogdanov(query_track):
     tmp_list.append(rhythm.get('beats_loudness_band_ratio').get('mean')[0])
     tmp_list.append(rhythm.get('beats_loudness_band_ratio').get('var')[0])
 
-    #  Tonal 
+    #  Tonal
     # Untransposed harmonic pitch class profile (36 dimensions)
     tmp_list.extend(tonal.get('hpcp').get('mean'))
+
+    # Transposed harmonic pitch class profile (36 dimensions)
+    tmp_list.extend(tonal.get('thpcp'))
 
     # Key strength (1 dimension)
     tmp_list.append(tonal.get('key_edma').get('strength'))
 
-    #  Miscellaneous 
+    # Tuning frequency (1 dimension)
+    tmp_list.append(tonal.get('tuning_frequency'))
+
+    # Dissonance: mean and variance (2 dimensions)
+    tmp_list.append(lowlevel.get('dissonance').get('mean'))
+    tmp_list.append(lowlevel.get('dissonance').get('var'))
+
+    # Chord change rate (1 dimension)
+    tmp_list.append(tonal.get('chords_changes_rate'))
+
+    # Chords histogram (24 dimensions)
+    tmp_list.extend(tonal.get('chords_histogram'))
+
+    # Chords strength: mean and variance (2 dimensions)
+    tmp_list.append(tonal.get('chords_strength').get('mean'))
+    tmp_list.append(tonal.get('chords_strength').get('var'))
+
+    # Tuning equal tempered deviation (1 dimension)
+    tmp_list.append(tonal.get('tuning_equal_tempered_deviation'))
+
+    # Tuning non-tempered energy ratio (1 dimension)
+    tmp_list.append(tonal.get('tuning_nontempered_energy_ratio'))
+
+    # Tuning diatonic strength (1 dimension)
+    tmp_list.append(tonal.get('tuning_diatonic_strength'))
+
+    #  Miscellaneous
     # Average loudness (1 dimension)
     tmp_list.append(lowlevel.get('average_loudness'))
 
     # Zero-crossing rate: mean and variance (2 dimensions)
     tmp_list.append(lowlevel.get('zerocrossingrate').get('mean'))
     tmp_list.append(lowlevel.get('zerocrossingrate').get('var'))
+
+    # Silence rate at the 20dB, 30dB and 60dB thresholds (3 dimensions)
+    for threshold in ['20dB', '30dB', '60dB']:
+        tmp_list.append(lowlevel.get(f'silence_rate_{threshold}').get('mean'))
+
+    # Spectral RMS variance (1 dimension)
+    tmp_list.append(lowlevel.get('spectral_rms').get('var'))
 
     d = len(tmp_list) # Dimension of the vector
     query_vector = np.array(tmp_list, dtype='float32')
