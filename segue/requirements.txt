@@ -1,11 +1,12 @@
 asgiref==3.12.1
 awscrt==0.36.0
+beautifulsoup4==4.15.0
 boto3==1.43.55
 boto3-stubs==1.43.56
 botocore==1.43.55
 botocore-stubs==1.43.14
-Django==6.0.7
-django-filter==26.1
+Django==4.2.30
+django-bootstrap-v5==1.0.11
 djangorestframework==3.17.1
 essentia==2.1b6.dev1389
 faiss-cpu==1.14.3
@@ -25,8 +26,10 @@ s3transfer==0.19.2
 scikit-learn==1.9.0
 scipy==1.18.0
 six==1.17.0
+soupsieve==2.9.2
 sqlparse==0.5.5
 threadpoolctl==3.6.0
 types-awscrt==0.34.1
 types-s3transfer==0.16.0
+typing_extensions==4.16.0
 urllib3==2.7.0
