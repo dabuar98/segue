@@ -58,5 +58,5 @@ def build_index(index_mat, descriptor_set='tzanetakis'):
 if __name__ == "__main__":
     load_dotenv()
     DATA_PATH = os.getenv("DATA_PATH")
-    build_index(f"{DATA_PATH}/matrices/index_mat_tzanetakis.npy")
-    build_index(f"{DATA_PATH}/matrices/index_mat_bogdanov.npy", descriptor_set='bogdanov')
+    for author in ['schedl', 'bogdanov', 'tzanetakis']:
+        build_index(f"{DATA_PATH}/matrices/index_mat_{author}.npy", descriptor_set=f'{author}')
