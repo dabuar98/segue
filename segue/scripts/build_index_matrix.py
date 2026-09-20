@@ -4,29 +4,30 @@ import boto3
 import numpy as np
 from botocore.exceptions import ClientError
 from dotenv import load_dotenv
-from .build_index_vector_tzanetakis import build_index_vector_tzanetakis
-from .build_index_vector_bogdanov import build_index_vector_bogdanov
+from build_index_vector_tzanetakis import build_index_vector_tzanetakis
+from build_index_vector_bogdanov import build_index_vector_bogdanov
+from build_index_vector_schedl import build_index_vector_schedl
 from datetime import datetime
 
-# Maps a descriptor set name to the vector-builder function used to compute each track's descriptors
+# Maps a descriptor set name to the vector-builder function used to compute each track's descriptors and vector length
 VECTOR_BUILDERS = {
-    'tzanetakis': build_index_vector_tzanetakis,
-    'bogdanov': build_index_vector_bogdanov,
+    'schedl': (build_index_vector_schedl, 75),
+    'tzanetakis': (build_index_vector_tzanetakis, 28),
+    'bogdanov': (build_index_vector_bogdanov, 212),
 }
 
-def build_index_matrix(tracks, n, descriptor_set='tzanetakis'):
+def build_index_matrix(tracks, descriptor_set='tzanetakis'):
     """
     Build the feature vector space matrix that is used as FAISS index to compute similarity
     Args:
         tracks: A string containing tracks information (string)
-        n: The number of audio descriptors (integer)
         descriptor_set: Which descriptor set to build the vectors with, one of VECTOR_BUILDERS' keys (string)
 
     Returns:
         index matrix :  A M x N matrix representing the feature vector space used to feed FAISS where M is the number
                         of tracks and N is the dimension of each vector (number of descriptors)
     """
-    vector_builder = VECTOR_BUILDERS[descriptor_set]
+    vector_builder, n = VECTOR_BUILDERS[descriptor_set]
     total_processed = 0 # For stats
     # Instantiate S3 client
     s3 = boto3.client('s3')
@@ -39,7 +40,7 @@ def build_index_matrix(tracks, n, descriptor_set='tzanetakis'):
     m = len(tracks) # Number of vectors to create
     index_matrix = np.full((m, n), np.nan, dtype='float32')
 
-    print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] BuildIndexMatrix: Starting to build index matrix")
+    print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] BuildIndexMatrix: Starting to build index matrix using {descriptor_set} descriptors")
     for idx, (id, metadata) in enumerate(tracks.items()):
         # Read file from bucket
         try:
@@ -77,5 +78,6 @@ if __name__ == "__main__":
     BUCKET_NAME = os.getenv("BUCKET_NAME")
     DATA_PATH = os.getenv("DATA_PATH")
     #build_index_matrix(f"{DATA_PATH}/tracks.json", 28)
-    build_index_matrix(f"{DATA_PATH}/tracks.json", 107, descriptor_set='bogdanov')
+    for descriptor in list(VECTOR_BUILDERS.keys()):
+        build_index_matrix(f"{DATA_PATH}/miscellaneous/tracks.json", descriptor_set=f'{descriptor}')
 
