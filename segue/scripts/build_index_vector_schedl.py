@@ -3,7 +3,7 @@ import os
 import numpy as np
 from datetime import datetime
 from dotenv import load_dotenv
-from .utils import map_key_former_version, map_key_scale
+from utils import map_key_former_version, map_key_scale
 
 def build_index_vector_schedl(af_dict):
     """
