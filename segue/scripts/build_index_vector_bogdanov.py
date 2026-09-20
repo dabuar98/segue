@@ -8,10 +8,12 @@ def build_index_vector_bogdanov(af_dict):
     """
     Create an 1 xD array with the audio features values retrieved for a mbid.
     The selection of the audio features are restricted to a subset of the descriptor set proposed by
-    Bogdanov [1]: bark bands, pitch, spectral centroid, spread, kurtosis, rolloff, decrease, skewness,
+    Bogdanov [1]: bark bands, MFCCs, pitch, spectral centroid, spread, kurtosis, rolloff, decrease, skewness,
     high-frequency content, spectral complexity, spectral crest, flatness, flux, spectral energy, energy bands,
-    strong peak, beats loudness, beats loudness bass, untransposed harmonic pitch class profile, key strength,
-    average loudness, and zero-crossing rate.
+    strong peak, BPM histogram peaks, beats loudness, beats loudness bass, transposed and untransposed harmonic
+    pitch class profile, key strength, tuning frequency, dissonance, chord change rate, chords histogram, chords
+    strength, tuning equal tempered deviation, tuning non-tempered energy ratio, tuning diatonic strength,
+    average loudness, zero-crossing rate, silence rate, and spectral RMS variance.
     Args:
         af_dict (dict): A dict representation of the audio features
 
@@ -34,6 +36,14 @@ def build_index_vector_bogdanov(af_dict):
     # Pitch: Mean and variance (2 dimensions)
     tmp_list.append(lowlevel.get('pitch_salience').get('mean'))
     tmp_list.append(lowlevel.get('pitch_salience').get('var'))
+
+    # MFCCs: mean coefficient array (13 dimensions)
+    tmp_list.extend(lowlevel.get('mfcc').get('mean'))
+
+    # MFCCs: diagonal of the covariance matrix (13 dimensions)
+    mfcc_cov = lowlevel.get('mfcc').get('cov')
+    for i in range(len(mfcc_cov)):
+        tmp_list.append(mfcc_cov[i][i])
 
     # Spectral centroid, spread, kurtosis, rolloff, decrease, skewness: mean and variance of each (12 dimensions)
     for descriptor in [
@@ -78,6 +88,12 @@ def build_index_vector_bogdanov(af_dict):
         tmp_list.append(lowlevel.get(descriptor).get('var'))
 
     # Rhythmic features
+    # BPM histogram first and second peaks: BPM, weight and spread of each (6 dimensions)
+    for peak in ['first', 'second']:
+        tmp_list.append(rhythm.get(f'bpm_histogram_{peak}_peak_bpm').get('mean'))
+        tmp_list.append(rhythm.get(f'bpm_histogram_{peak}_peak_weight').get('mean'))
+        tmp_list.append(rhythm.get(f'bpm_histogram_{peak}_peak_spread').get('mean'))
+
     # Beats loudness: mean and variance (2 dimensions)
     tmp_list.append(rhythm.get('beats_loudness').get('mean'))
     tmp_list.append(rhythm.get('beats_loudness').get('var'))
@@ -90,8 +106,37 @@ def build_index_vector_bogdanov(af_dict):
     # Untransposed harmonic pitch class profile (36 dimensions)
     tmp_list.extend(tonal.get('hpcp').get('mean'))
 
+    # Transposed harmonic pitch class profile (36 dimensions)
+    tmp_list.extend(tonal.get('thpcp'))
+
     # Key strength (1 dimension)
     tmp_list.append(tonal.get('key_strength'))
+
+    # Tuning frequency (1 dimension)
+    tmp_list.append(tonal.get('tuning_frequency'))
+
+    # Dissonance: mean and variance (2 dimensions)
+    tmp_list.append(lowlevel.get('dissonance').get('mean'))
+    tmp_list.append(lowlevel.get('dissonance').get('var'))
+
+    # Chord change rate (1 dimension)
+    tmp_list.append(tonal.get('chords_changes_rate'))
+
+    # Chords histogram (24 dimensions)
+    tmp_list.extend(tonal.get('chords_histogram'))
+
+    # Chords strength: mean and variance (2 dimensions)
+    tmp_list.append(tonal.get('chords_strength').get('mean'))
+    tmp_list.append(tonal.get('chords_strength').get('var'))
+
+    # Tuning equal tempered deviation (1 dimension)
+    tmp_list.append(tonal.get('tuning_equal_tempered_deviation'))
+
+    # Tuning non-tempered energy ratio (1 dimension)
+    tmp_list.append(tonal.get('tuning_nontempered_energy_ratio'))
+
+    # Tuning diatonic strength (1 dimension)
+    tmp_list.append(tonal.get('tuning_diatonic_strength'))
 
     # Miscellaneous
     # Average loudness (1 dimension)
@@ -101,13 +146,20 @@ def build_index_vector_bogdanov(af_dict):
     tmp_list.append(lowlevel.get('zerocrossingrate').get('mean'))
     tmp_list.append(lowlevel.get('zerocrossingrate').get('var'))
 
+    # Silence rate at the 20dB, 30dB and 60dB thresholds (3 dimensions)
+    for threshold in ['20dB', '30dB', '60dB']:
+        tmp_list.append(lowlevel.get(f'silence_rate_{threshold}').get('mean'))
+
+    # Spectral RMS variance (1 dimension)
+    tmp_list.append(lowlevel.get('spectral_rms').get('var'))
+
     d = len(tmp_list) # Dimension of the vector
     # Instantiate empty a Numpy array
     result = np.array(tmp_list, dtype='float32')
     # Transform array into a 1 x D
     result = result.reshape(1, d)
 
-    # print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] BuildIndexVectorBogdanov: Created a {result.shape} vector")
+    print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] BuildIndexVectorBogdanov: Created a {result.shape} vector")
     return result
 
 ###### Executable ########
