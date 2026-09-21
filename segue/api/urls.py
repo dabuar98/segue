@@ -3,5 +3,5 @@ from django.urls import path
 from api.views import similar
 
 urlpatterns = [
-    path('api/similar/', similar, name='similar')
+    path('similar/', similar, name='similar')
 ]
