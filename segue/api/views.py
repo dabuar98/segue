@@ -96,7 +96,6 @@ def similar(request):
         faiss_index, scaler, build_query_vector_fn = DESCRIPTOR_SETS[descriptor_set]
 
         # Build query vector
-        # query_vector = build_query_vector_schedl(tmp_path)
         query_vector = build_query_vector_fn(tmp_path)
 
         # Remove uploaded content
@@ -110,7 +109,7 @@ def similar(request):
             query_vector = pca.transform(query_vector)
 
         # Normalise query vector
-        # faiss.normalize_L2(query_vector)
+        faiss.normalize_L2(query_vector)
 
         # Store database objects retrieved in a dict
         tracks_objects = []
