@@ -22,16 +22,16 @@ def build_index(index_mat, descriptor_set='tzanetakis'):
     raw_vectors = np.load(index_mat)
 
     # Normalise index so audio features have 0 mean and standard deviation of 1
-    scaler = StandardScaler()
-    vectors = scaler.fit_transform(raw_vectors)
+    scaler = StandardScaler().fit(raw_vectors)
+    vectors = scaler.transform(raw_vectors)
 
     # Apply PCA to the descriptor set suggested by Bogdanov
     if descriptor_set == 'bogdanov':
         # Instantiate Principal Component Analysis (PCA) retaining 95% variance
-        pca = PCA(n_components=0.95)
-        vectors = pca.fit_transform(vectors)
+        pca = PCA(n_components=0.95, svd_solver='full').fit(vectors)
+        vectors = pca.transform(vectors)
         joblib.dump(pca, f"{DATA_PATH}/scalers/index_bogdanov_pca.joblib")
-        print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] Components chosen: {pca.n_components_}")
+        print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] BuildIndex: {pca.n_components_} components chosen")
         print(f"[ {datetime.now():%Y-%m-%d %H:%M:%S} ][ INFO ] BuildIndex: PCA exported")
 
     # Normalise vectors
