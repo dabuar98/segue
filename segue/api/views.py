@@ -48,7 +48,7 @@ DESCRIPTOR_SETS = {
 def similar(request):
     try:
         # Retrieve the parameters passed on the request
-        audio_file = request.FILES['audio']
+        audio_file = request.FILES['track']
 
         # Get number of tracks to return (Default 20)
         n = request.POST.get('n', 20)
