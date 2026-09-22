@@ -1,0 +1,83 @@
+:root {
+    --segue-bg: #0c0c0c;
+    --segue-panel: #1c1c1c;
+    --segue-row: #2a2a2a;
+    --segue-row-hover: #323232;
+    --segue-border: #333333;
+    --segue-text: #ffff;
+    --segue-text-muted: #9a9a9a;
+    --segue-accent: #04fb90;
+    --segue-accent-dark: #48BB8A;
+    --segue-tag-bg: #333333;
+    --segue-radius: 10px;
+}
+
+body {
+    background-color: var(--segue-bg);
+    color: var(--segue-text);
+    font-family: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+.seg-logo {
+    font-family: "Space Grotesk", "Inter", system-ui, sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: 0.5em;
+    color: var(--segue-accent-dark);
+}
+
+.seg-nav-links a {
+    color: var(--segue-text);
+    font-size: 0.95rem;
+    margin-left: 1.75rem;
+}
+
+a:hover {
+    color: var(--segue-accent-dark)
+}
+
+.seg-hero h1 {
+    color: var(--segue-accent-dark);
+    font-weight: 600;
+    font-size: 2.5rem;
+    line-height: 1.2;
+}
+
+.seg-subtext {
+    color: var(--segue-text);
+    max-width: 34ch;
+}
+
+.seg-eyebrow {
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    color: var(--segue-text);
+    font-weight: 600;
+}
+
+.form-control {
+    border: 2px solid var(--segue-border);
+    border-radius: var(--segue-radius);
+    padding: 0.5rem;
+    font-size: 1rem;
+}
+
+.form-control:focus {
+    border-color: var(--segue-accent);
+    box-shadow: 0 0 0 3px var(--segue-accent-dark);
+}
+
+.seg-submit-btn {
+  background-color: var(--segue-panel);
+  border: 1px solid var(--segue-border);
+  color: var(--segue-text);
+  font-weight: 500;
+  border-radius: var(--segue-radius);
+  padding: 0.75rem 1rem;
+}
+
+.seg-submit-btn:hover {
+  background-color: var(--segue-accent);
+  color: var(--segue-bg);
+  border-color: var(--segue-accent-dark);
+}
