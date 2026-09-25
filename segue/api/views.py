@@ -5,15 +5,13 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from dotenv import load_dotenv
-from scripts.build_query_vector_schedl import build_query_vector_schedl
-from scripts.build_query_vector_tzanetakis import build_query_vector_tzanetakis
-from scripts.build_query_vector_bogdanov import build_query_vector_bogdanov
 from scripts.utils import is_valid_int
 from api.models import *
 from .serialisers import TrackSerialiser
 import magic
 import faiss
-import joblib
+import numpy as np
+from app.celery.tasks import extract_audio_features
 
 """
 To run it curl -s -X POST http://localhost:8000/api/similar/ -F "audio=@data/sample.mp3" | python -m json.tool
@@ -30,17 +28,11 @@ faiss_index_schedl = faiss.read_index(f"{DATA_PATH}/indexes/index_schedl.faiss")
 faiss_index_tzanetakis = faiss.read_index(f"{DATA_PATH}/indexes/index_tzanetakis.faiss")
 faiss_index_bogdanov = faiss.read_index(f"{DATA_PATH}/indexes/index_bogdanov.faiss")
 
-# Load scalers
-scaler_schedl = joblib.load(f"{DATA_PATH}/scalers/index_scaler_schedl.joblib")
-scaler_tzanetakis = joblib.load(f"{DATA_PATH}/scalers/index_scaler_tzanetakis.joblib")
-scaler_bogdanov = joblib.load(f"{DATA_PATH}/scalers/index_scaler_bogdanov.joblib")
-pca = joblib.load(f"{DATA_PATH}/scalers/index_bogdanov_pca.joblib")
-
-# Maps a descriptor set name to its (faiss index, scaler, query vector builder) triple
+# Maps a descriptor set name to its faiss index
 DESCRIPTOR_SETS = {
-    'schedl': (faiss_index_schedl, scaler_schedl, build_query_vector_schedl),
-    'tzanetakis': (faiss_index_tzanetakis, scaler_tzanetakis, build_query_vector_tzanetakis),
-    'bogdanov': (faiss_index_bogdanov, scaler_bogdanov, build_query_vector_bogdanov),
+    'schedl': faiss_index_schedl,
+    'tzanetakis': faiss_index_tzanetakis,
+    'bogdanov': faiss_index_bogdanov,
 }
 
 @require_POST
@@ -92,21 +84,18 @@ def similar(request):
         if 'audio' not in magic.from_file(tmp_path, mime=True):
             return JsonResponse({'error': 'only audio files are supported'}, status=400)
 
-        # Resolve the faiss index, scaler and query vector builder for the selected descriptor set
-        faiss_index, scaler, build_query_vector_fn = DESCRIPTOR_SETS[descriptor_set]
+        # Resolve the faiss index for the selected descriptor set
+        faiss_index = DESCRIPTOR_SETS[descriptor_set]
 
-        # Build query vector
-        query_vector = build_query_vector_fn(tmp_path)
+        try:
+            # Build query vector (hand over to a Celery worker and wait for the result)
+            query_vector = extract_audio_features.delay(tmp_path, descriptor_set).get()
+        finally:
+            # Remove uploaded content feature extraction fails
+            os.remove(tmp_path)
 
-        # Remove uploaded content
-        os.remove(tmp_path)
-
-        # Apply scaler to query vector
-        query_vector = scaler.transform(query_vector)
-
-        if descriptor_set == 'bogdanov':
-            # Apply PCA to query vector
-            query_vector = pca.transform(query_vector)
+        # Celery returns the vector as a list, faiss needs a float32 numpy array
+        query_vector = np.array(query_vector, dtype=np.float32)
 
         # Normalise query vector
         faiss.normalize_L2(query_vector)
