@@ -5,10 +5,8 @@
     --segue-row-hover: #323232;
     --segue-border: #333333;
     --segue-text: #ffff;
-    --segue-text-muted: #9a9a9a;
     --segue-accent: #04fb90;
     --segue-accent-dark: #48BB8A;
-    --segue-tag-bg: #333333;
     --segue-radius: 10px;
 }
 
@@ -68,16 +66,119 @@ a:hover {
 }
 
 .seg-submit-btn {
-  background-color: var(--segue-panel);
-  border: 1px solid var(--segue-border);
-  color: var(--segue-text);
-  font-weight: 500;
-  border-radius: var(--segue-radius);
-  padding: 0.75rem 1rem;
+    background-color: var(--segue-panel);
+    border: 1px solid var(--segue-border);
+    color: var(--segue-text);
+    font-weight: 500;
+    border-radius: var(--segue-radius);
+    padding: 0.75rem 1rem;
 }
 
 .seg-submit-btn:hover {
-  background-color: var(--segue-accent);
-  color: var(--segue-bg);
-  border-color: var(--segue-accent-dark);
+    background-color: var(--segue-accent);
+    color: var(--segue-bg);
+    border-color: var(--segue-accent-dark);
+}
+
+.seg-filter-panel {
+    background-color: var(--segue-panel);
+    border: 1px solid var(--segue-border);
+    border-radius: var(--segue-radius);
+    padding: 1.5rem;
+}
+
+.seg-filter-label {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+/* Styling for number of tracks slider */
+.seg-range {
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--segue-border);
+  accent-color: var(--segue-accent);
+  appearance: none;
+}
+
+.seg-update-btn {
+    background-color: #fafafa;
+    color: #0c0c0c;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem 1.25rem;
+}
+
+.seg-update-btn:hover {
+    background-color: var(--segue-accent);
+    color: #0c0c0c;
+}
+
+.seg-results-heading {
+    font-weight: 600;
+    font-size: 1.05rem;
+}
+
+.seg-results-columns {
+    color: var(--segue-text);
+    font-size: 0.8rem;
+    border-bottom: 1px solid var(--segue-border);
+    padding-bottom: 0.5rem;
+}
+
+.seg-track-row {
+    background-color: var(--segue-row);
+    border-radius: var(--segue-radius);
+    padding: 0.9rem 1.1rem;
+    transition: background-color 0.15s ease;
+}
+
+.seg-track-row:hover {
+    background-color: var(--segue-row-hover);
+}
+
+.seg-track-index {
+    width: 28px;
+    height: 28px;
+    background-color: var(--segue-bg);
+    color: var(--segue-text);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.seg-track-title {
+    font-weight: 600;
+    margin-bottom: 0.1rem;
+}
+
+.seg-track-meta {
+    font-size: 0.7rem;
+}
+
+.seg-tag {
+    background-color: var(--segue-accent-dark);
+    color: var(--segue-bg);
+    border-radius: 999px;
+    padding: 0.15rem 0.65rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+/*Styling for about section*/
+.seg-about {
+    border-top: 1px solid var(--segue-border);
+}
+
+.seg-about h2 {
+  font-weight: 600;
+  color: var(--segue-accent-dark);
+}
+
+.seg-about p {
+  color: var(--segue-text);
+  max-width: 60ch;
 }

@@ -15,7 +15,7 @@
     <div class="container d-flex justify-content-between align-items-center">
         <span class="seg-logo">segue</span>
         <div class="seg-nav-links">
-            <a href="#">About</a>
+            <a href="#about-section">About</a>
             <a href="https://github.com/dabuar98/segue" target="_blank" rel="noopener">GitHub</a>
         </div>
     </div>
@@ -23,7 +23,7 @@
 <!--    Container for upload and results sections-->
 <main class="container d-flex py-5">
     <!--        Left column: Upload section-->
-    <div class="col-lg-5">
+    <div class="col-lg-4">
         <div class="seg-hero mb-4">
             <h1 class="mb-3">Find music that sound like yours</h1>
             <p class="seg-subtext mb-2">Segue recommends electronic music based on acoustic similarity — no account
@@ -47,9 +47,95 @@
         </form>
     </div>
     <!--        Right Column: Results section-->
-    <div class="col-lg-7" style="background-color: RGB(255, 0, 0); min-height: 500px;">
+    <div class="col-lg-7" style="margin-left: 50px">
+        <!--Filter pannel-->
+        <div class="seg-filter-panel mb-4">
+            <div class="row g-4 align-items-start">
+                <!--                Number of filter items scroller-->
+                <div class="col-md-6">
+                    <p class="seg-filter-label mb-1">Filter By</p>
+                    <label for="rec-count" class="seg-filter-sublabel d-block mb-2">
+                        Number of recommendations: <span id="rec-count-value">N</span> (max 50)
+                    </label>
+                    <input
+                            type="range"
+                            class="seg-range"
+                            id="rec-count"
+                            name="rec_count"
+                            min="1"
+                            max="50"
+                            value="20"
+                            style="--seg-range-fill: 8%;"
+                    >
+                </div>
 
+                <!--                Subgenre selection column-->
+                <div class="col-md-6">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="seg-group-label mb-2">Subgenres</p>
+                            <select class="form-select" aria-label="Default select example">
+                                <option selected>All subgenres</option>
+                                <option value="1">One</option>
+                                <option value="2">Two</option>
+                                <option value="3">Three</option>
+                            </select>
+                        </div>
+                        <button type="button" class="seg-update-btn">Update</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--        Results-->
+        <p class="seg-results-heading mb-3">Showing N similar tracks</p>
+        <div class="row seg-results-columns mx-0 mb-2 d-none d-sm-flex">
+            <div class="col-1">#</div>
+            <div class="col-7">Track</div>
+            <div class="col-2">Genre</div>
+            <div class="col-2 text-end">Similarity</div>
+        </div>
+
+        <div class="d-flex flex-column gap-2">
+            {% for i in "1234567890" %}
+            <div class="seg-track-row d-flex align-items-center gap-3">
+                <div class="seg-track-index d-flex align-items-center justify-content-center">{{ i }}</div>
+                <div class="flex-grow-1">
+                    <div class="seg-track-title">Title</div>
+                    <div class="seg-track-meta">Artist - Album - Year</div>
+                </div>
+                <div class="seg-track-tags d-none d-md-flex gap-2">
+                    <span class="seg-tag seg-tag--genre">genre1</span>
+                    <span class="seg-tag">genre2</span>
+                    <span class="seg-tag">genre3</span>
+                </div>
+                <div class="seg-similarity">X%</div>
+            </div>
+            {% endfor %}
+        </div>
     </div>
 </main>
+<section class="seg-about container my-5 pt-5" id="about-section">
+    <p class="seg-eyebrow mb-2">ABOUT</p>
+    <h2 class="mb-3">Acoustic similarity, popularity unbiased</h2>
+    <p>
+        Segue is a content-based music recommender built for electronic music. It analyses
+        your upload's timbre, tempo, and harmonic content to find up to 50 most acoustically
+        similar tracks in its catalogue — without needing your listening history.
+    </p>
+</section>
 </body>
+<script>
+    // Update the number of tracks to retrieve when moving the thumb
+    // This script was adapted from https://getbootstrap.com/docs/5.3/forms/range/
+    const rangeInput = document.getElementById('rec-count');
+    const rangeOutput = document.getElementById('rec-count-value');
+
+    // Set initial value
+    rangeOutput.textContent = rangeInput.value;
+
+    rangeInput.addEventListener('input', function() {
+        rangeOutput.textContent = this.value;
+    });
+</script>
 </html>
