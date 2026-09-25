@@ -1,5 +1,5 @@
 import os
-from celery import Celery
+from celery import shared_task
 from dotenv import load_dotenv
 import joblib
 from scripts.build_query_vector_bogdanov import build_query_vector_bogdanov
@@ -22,12 +22,10 @@ DESCRIPTOR_SETS = {
     'bogdanov': (scaler_bogdanov, build_query_vector_bogdanov),
 }
 
-app = Celery('tasks', broker='redis://localhost:6379', backend='redis://localhost')
-
-# To start celery workers (run from the project root): celery -A app.celery.tasks worker --loglevel=info
+# To start celery workers (run from the project root): celery -A app worker --loglevel=info
 
 # The task of extracting audio descriptors is handed over to a Celery worker to offload computation from main thread
-@app.task
+@shared_task
 def extract_audio_features(track, descriptor_set):
     '''
     This function extracts audio features from an audio file
