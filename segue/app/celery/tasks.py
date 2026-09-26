@@ -2,6 +2,7 @@ import os
 from celery import shared_task
 from dotenv import load_dotenv
 import joblib
+from api.query_cache import set_query, READY, FAILED
 from scripts.build_query_vector_bogdanov import build_query_vector_bogdanov
 from scripts.build_query_vector_schedl import build_query_vector_schedl
 from scripts.build_query_vector_tzanetakis import build_query_vector_tzanetakis
@@ -47,3 +48,26 @@ def extract_audio_features(track, descriptor_set):
         vector = pca.transform(vector)
 
     return vector.tolist()
+
+
+@shared_task
+def compute_query(query_id, track, descriptor_set):
+    '''
+    This function computes the query vector of an uploaded audio file and stores it in the cache, so the similarity
+    search can be run again with different filters without recomputing the audio features
+    Args:
+        query_id: identifier the vector is stored under
+        track: path to the uploaded audio file, removed once processed
+        descriptor_set: The descriptor set to be used to extract audio features
+
+    '''
+    try:
+        # Call the task directly so it runs inside this worker
+        vector = extract_audio_features(track, descriptor_set)
+        set_query(query_id, READY, descriptor_set, vector)
+    except Exception:
+        set_query(query_id, FAILED, descriptor_set)
+        raise
+    finally:
+        # Remove uploaded content, whether feature extraction succeeded or not
+        os.remove(track)
