@@ -40,6 +40,7 @@ DESCRIPTOR_SETS = {
     'bogdanov': faiss_index_bogdanov,
 }
 
+MAX_UPLOAD_SIZE = 20 * 1024 * 1024  # 20MB in bytes
 
 @require_POST
 @csrf_exempt
@@ -53,6 +54,9 @@ def create_query(request):
         audio_file = request.FILES.get('track')
         if audio_file is None:
             return JsonResponse({'error': 'track is required'}, status=400)
+
+        if audio_file.size > MAX_UPLOAD_SIZE:
+            return JsonResponse({'error': 'uploaded file exceeds the 20MB size limit'}, status=400)
 
         # Which descriptor set to compute similarity with (Default Schedl's)
         descriptor_set = request.POST.get('descriptor_set', 'schedl')
