@@ -1,0 +1,58 @@
+@startuml
+
+actor User
+participant "Web server" as Server
+
+box "Redis (127.0.0.1:6379)" #F5F5F5
+    database "db 1\nDjango cache" as Cache
+    database "db 0\nCelery broker" as Broker
+end box
+
+participant "Worker" as Worker
+
+autonumber
+== 1. Upload: POST /api/queries/ ==
+User -> Server: POST /api/queries/\n(track, descriptor_set)
+activate Server
+Server -> Cache: SET query:<query_id>\n{status: PENDING, descriptor_set, vector: None}
+Server-> Broker: LPUSH celery\ncompute_query(query_id, tmp_path, descriptor_set)
+activate Broker
+Server --> User: 202 {query_id, status: "pending"}
+deactivate Server
+
+== 2. Feature extraction (asynchronous) ==
+Broker -> Worker: compute_query message
+deactivate Broker
+Worker -> Worker: extract_audio_features
+Worker --> Cache: SET query:<query_id>\n{status: READY, descriptor_set, vector}
+
+== 3. Status polling: GET /api/queries/<query_id>/ ==
+autonumber
+loop until status != PENDING
+    User -> Server: GET /api/queries/<query_id>/
+    activate Server
+    Server -> Cache: GET query:<query_id>
+    Cache --> Server: query:<query_id>\n{status: PENDING, descriptor_set, vector: None}
+    Server --> User: 202 {query_id, status: "pending"}
+    deactivate Server
+end
+
+autonumber
+alt status == READY
+User -> Server: GET /api/queries/<query_id>/
+Server -> Cache: GET query:<query_id>
+Cache --> Server: query:<query_id>\n{status: READY, descriptor_set, vector}
+Server -> User: 200 {query_id, status, descriptor_set}
+end
+
+== 4. Recommendations: GET /api/queries/<query_id>/similar/ ==
+loop on each filter change
+User -> Server: GET /api/queries/<query_id>/similar/?n=&subgenre=&show_sim=
+activate Server
+Server -> Cache: GET query:<query_id>
+Cache --> Server: query:<query_id>\n{status: READY, descriptor_set, vector}
+Server -> Server: apply filters\nsearch FAISS index
+Server --> User: 200 [tracks]
+deactivate Server
+end
+@enduml
