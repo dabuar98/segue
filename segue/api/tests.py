@@ -18,16 +18,23 @@ from app.celery.tasks import compute_query
 LOCMEM_CACHE = {'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'}}
 
 
-def make_wav(name='track.wav'):
+def make_wav(name='track.wav', size_mb=2):
     """
     Builds a short silent WAV file in memory so libmagic detects it as audio
+    Args:
+        name: file name
+        size_mb: size of the file in MB
+
+    Returns:
+        SimpleUploadedFile: representation of a file (mock)
+
     """
     buffer = io.BytesIO()
     with wave.open(buffer, 'wb') as wav:
         wav.setnchannels(1)
         wav.setsampwidth(2)
         wav.setframerate(8000)
-        wav.writeframes(b'\x00\x00' * 800)
+        wav.writeframes(b'\x00' * (size_mb * 1024 * 1024))
     return SimpleUploadedFile(name, buffer.getvalue(), content_type='audio/wav')
 
 
@@ -108,6 +115,12 @@ class TestCreateQuery(TestCase):
         self.assertEqual('only audio files are supported', response.json()['error'])
         self.mock_task.delay.assert_not_called()
         mock_remove.assert_called_once()
+
+    def test_audio_file_exceeded_size_limit(self):
+        larger_audio = make_wav(size_mb=21)
+        response = self.post(track=larger_audio)
+        self.assertEqual(400, response.status_code)
+        self.assertEqual('uploaded file exceeds the 20MB size limit', response.json()['error'])
 
     def test_non_audio_file_with_audio_extension_rejected(self):
         # MIME type is detected from content, not from the file name
