@@ -32,7 +32,7 @@
         </div>
         <p class="seg-eyebrow mb-2">UPLOAD YOUR TRACK</p>
         <!--            Form to submit the audio file-->
-        <form method="post" enctype="multipart/form-data" action="{% url 'similar' %}">
+        <form method="post" enctype="multipart/form-data" action="{% url 'create_query' %}">
             <div class="mb-3" id="dropzone">
                 <label for="track-upload" class="form-label">Drop a track or click to browse (max 20 MB)</label>
                 <input
@@ -40,7 +40,7 @@
                         type="file"
                         name="track"
                         id="track-upload"
-                        accept=".mp3,.wav,.flac,.tiff"
+                        accept=".mp3,.wav,.flac"
                 >
             </div>
             <button type="submit" class="seg-submit-btn w-100">Find similar tracks</button>
