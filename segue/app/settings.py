@@ -141,3 +141,15 @@ CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
 CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379/0"
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
+
+# Cache used to store computed query vectors so filters can be re-applied without recomputing audio features
+# Uses a different Redis database than Celery (db 1 vs db 0) to keep both key spaces apart
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/1',
+    }
+}
+
+# Number of seconds a computed query vector is kept in the cache
+QUERY_TTL = 60 * 60
